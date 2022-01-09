@@ -98,10 +98,10 @@ For more information on inaccuracies, see issue
    lines of code into your markdown content. Change the `username` value to your GitHub 
    username.
    ```md
-   ![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/overviewLightMode.svg#gh-light-mode-only)![](https://raw.githubusercontent.com/<username>/github-stats/actions_branch/generated_images/overviewDarkMode.svg#gh-dark-mode-only)
+   ![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/overviewLightMode.svg#gh-light-mode-only)![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/overviewDarkMode.svg#gh-dark-mode-only)
    ```
    ```md
-   ![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/languagesLightMode.svg#gh-light-mode-only)![](https://raw.githubusercontent.com/<username>/github-stats/actions_branch/generated_images/languagesDarkMode.svg#gh-dark-mode-only)
+   ![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/languagesLightMode.svg#gh-light-mode-only)![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/languagesDarkMode.svg#gh-dark-mode-only)
    ```
 9. Link back to this repository so that others can generate their own
    statistics images.
