@@ -98,15 +98,18 @@ class GitHubRepoStats(object):
         """
         # skip repo if already scraped
         if repo_name in self._repos:
+            print("1")
             return False
         # skip repo if a list of repos to only be included is given
         # and the repo is not included in that list
         if len(self.environment_vars.only_included_repos) > 0 and \
                 repo_name not in self.environment_vars.only_included_repos:
+            print("2")
             return False
         # skip repo if a list of repos to be excluded is given
         # and the repo is included in that list
         if repo_name in self.environment_vars.exclude_repos:
+            print("3")
             return False
         return True
 
