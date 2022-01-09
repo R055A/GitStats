@@ -159,6 +159,7 @@ class GitHubRepoStats(object):
 
                 name = repo.get("nameWithOwner")
                 if not await self.is_repo_valid(name):
+                    print("Repo not included")
                     continue
                 self._repos.add(name)
 
@@ -208,6 +209,7 @@ class GitHubRepoStats(object):
 
         for repo in env_repos:
             if not await self.is_repo_valid(repo):
+                print("Repo not included")
                 continue
             self._repos.add(repo)
 
