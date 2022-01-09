@@ -70,7 +70,7 @@ class GitHubRepoStats(object):
         else:
             prcnt_dltd = 0.0
         ttl_prcnt = await self.contributions_percentage
-        avg_prcnt = await self.avg_contributions_percentage
+        avg_prcnt = await self.avg_contribution_percent
 
         return f"""GitHub Repository Statistics:
         Stargazers: {await self.stargazers:,}
@@ -424,7 +424,7 @@ class GitHubRepoStats(object):
         return self._contributions_percentage
 
     @property
-    async def avg_contributions_percentage(self) -> str:
+    async def avg_contribution_percent(self) -> str:
         """
         :return: str representing the avg percent of user's repo contributions
         """
