@@ -157,12 +157,14 @@ class EnvironmentVariables:
                 {x.strip() for x in manually_added_repos.split(",")}
             )
 
-        if only_included_repos is None:
+        if only_included_repos is None or only_included_repos == "":
             self.only_included_repos = set()
+            print("A")
         else:
             self.only_included_repos = (
                 {x.strip() for x in only_included_repos.split(",")}
             )
+            print("B")
 
     def set_views(self, views: any) -> None:
         self.repo_views += int(views)
