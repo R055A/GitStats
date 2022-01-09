@@ -77,6 +77,8 @@ For more information on inaccuracies, see issue
    - To ignore certain repos, add them (in owner/name format e.g.,
      `jstrieb/github-stats`) separated by commas to a new secret—created as
      before—called `EXCLUDED`.
+   - If it is more convenient to only include certain repos, add them (in owner/name format e.g.,
+     `R055A/GitStats`) separated by commas to a new secret called `ONLY_INCLUDED`. The `EXCLUDED` secret can still be used with this.
    - To ignore certain languages, add them (separated by commas) to a new
      secret called `EXCLUDED_LANGS`.
    - To show statistics only for "owned" repositories and not forks with
