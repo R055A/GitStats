@@ -91,7 +91,7 @@ class GitHubRepoStats(object):
         Project repository contributors: {len(await self.contributors) - 1:,}
         Languages:\n\t\t\t- {formatted_languages}"""
 
-    def is_repo_valid(self, repo_name):
+    async def is_repo_valid(self, repo_name):
         """
         :param repo_name: the name of the repo in owner/name format
         :return: True if repo is to be included in self._repos, False if not
@@ -158,7 +158,7 @@ class GitHubRepoStats(object):
                     continue
 
                 name = repo.get("nameWithOwner")
-                if not self.is_repo_valid(name):
+                if not await self.is_repo_valid(name):
                     continue
                 self._repos.add(name)
 
@@ -207,7 +207,7 @@ class GitHubRepoStats(object):
         lang_cols = self.queries.get_language_colors()
 
         for repo in env_repos:
-            if not self.is_repo_valid(repo):
+            if not await self.is_repo_valid(repo):
                 continue
             self._repos.add(repo)
 
