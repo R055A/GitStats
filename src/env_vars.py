@@ -158,7 +158,7 @@ class EnvironmentVariables:
             )
 
         if only_included_repos is None:
-            self.only_included_repos = None
+            self.only_included_repos = set()
         else:
             self.only_included_repos = (
                 {x.strip() for x in only_included_repos.split(",")}
