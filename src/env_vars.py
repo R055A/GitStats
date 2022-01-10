@@ -20,17 +20,22 @@ class EnvironmentVariables:
                  access_token: str,
                  exclude_repos: Optional[str] = getenv("EXCLUDED"),
                  exclude_langs: Optional[str] = getenv("EXCLUDED_LANGS"),
-                 ignore_forked_repos: str = getenv("EXCLUDE_FORKED_REPOS"),
+                 include_forked_repos: str = getenv("INCLUDE_FORKED_REPOS"),
+                 exclude_contrib_repos: str = getenv("EXCLUDE_CONTRIB_REPOS"),
+                 exclude_archive_repos: str = getenv("EXCLUDE_ARCHIVE_REPOS"),
+                 exclude_private_repos: str = getenv("EXCLUDE_PRIVATE_REPOS"),
+                 exclude_public_repos: str = getenv("EXCLUDE_PUBLIC_REPOS"),
                  repo_views: Optional[str] = getenv("REPO_VIEWS"),
                  repo_last_viewed: Optional[str] = getenv("LAST_VIEWED"),
                  repo_first_viewed: Optional[str] = getenv("FIRST_VIEWED"),
-                 maintain_repo_view_count: str = getenv("SAVE_REPO_VIEWS"),
+                 store_repo_view_count: str = getenv("STORE_REPO_VIEWS"),
                  repo_clones: Optional[str] = getenv("REPO_CLONES"),
                  repo_last_cloned: Optional[str] = getenv("LAST_CLONED"),
                  repo_first_cloned: Optional[str] = getenv("FIRST_CLONED"),
-                 maintain_repo_clone_count: str = getenv("SAVE_REPO_CLONES"),
+                 store_repo_clone_count: str = getenv("STORE_REPO_CLONES"),
                  more_collabs: Optional[str] = getenv("MORE_COLLABS"),
-                 manually_added_repos: Optional[str] = getenv("MORE_REPOS")):
+                 manually_added_repos: Optional[str] = getenv("MORE_REPOS"),
+                 only_included_repos: Optional[str] = getenv("ONLY_INCLUDED")):
         self.__db = GitRepoStatsDB()
 
         self.username = username
@@ -50,17 +55,37 @@ class EnvironmentVariables:
                 {x.strip() for x in exclude_langs.split(",")}
             )
 
-        self.ignore_forked_repos = (
-                not not ignore_forked_repos
-                and ignore_forked_repos.strip().lower() == "true"
+        self.include_forked_repos = (
+                not not include_forked_repos
+                and include_forked_repos.strip().lower() == "true"
         )
 
-        self.maintain_repo_view_count = (
-                not maintain_repo_view_count
-                or maintain_repo_view_count.strip().lower() != "false"
+        self.exclude_contrib_repos = (
+                not not exclude_contrib_repos
+                and exclude_contrib_repos.strip().lower() == "true"
         )
 
-        if self.maintain_repo_view_count:
+        self.exclude_archive_repos = (
+                not not exclude_archive_repos
+                and exclude_archive_repos.strip().lower() == "true"
+        )
+
+        self.exclude_private_repos = (
+                not not exclude_private_repos
+                and exclude_private_repos.strip().lower() == "true"
+        )
+
+        self.exclude_public_repos = (
+                not not exclude_public_repos
+                and exclude_public_repos.strip().lower() == "true"
+        )
+
+        self.store_repo_view_count = (
+                not store_repo_view_count
+                or store_repo_view_count.strip().lower() != "false"
+        )
+
+        if self.store_repo_view_count:
             try:
                 if repo_views:
                     self.repo_views = int(repo_views)
@@ -100,12 +125,12 @@ class EnvironmentVariables:
             self.__db.set_views_from_date(self.repo_first_viewed)
             self.__db.set_views_to_date(self.repo_last_viewed)
 
-        self.maintain_repo_clone_count = (
-                not maintain_repo_clone_count
-                or maintain_repo_clone_count.strip().lower() != "false"
+        self.store_repo_clone_count = (
+                not store_repo_clone_count
+                or store_repo_clone_count.strip().lower() != "false"
         )
 
-        if self.maintain_repo_clone_count:
+        if self.store_repo_clone_count:
             try:
                 if repo_clones:
                     self.repo_clones = int(repo_clones)
@@ -154,6 +179,13 @@ class EnvironmentVariables:
         else:
             self.manually_added_repos = (
                 {x.strip() for x in manually_added_repos.split(",")}
+            )
+
+        if only_included_repos is None or only_included_repos == "":
+            self.only_included_repos = set()
+        else:
+            self.only_included_repos = (
+                {x.strip() for x in only_included_repos.split(",")}
             )
 
     def set_views(self, views: any) -> None:

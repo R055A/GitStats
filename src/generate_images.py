@@ -10,6 +10,17 @@ from src.env_vars import EnvironmentVariables
 from src.github_repo_stats import GitHubRepoStats
 
 OUTPUT_DIR = "generated_images"  # directory for storing generated images
+TEMPLATE_PATH = "src/templates/"
+OVERVIEW_FILE_NAME = "overview.svg"
+LANGUAGES_FILE_NAME = "languages.svg"
+
+# for GitHub README markdown light/dark mode, which can be used together:
+# append #gh-light-mode-only to light mode image URLs for GitHub .md README.md
+# append #gh-dark-mode-only to dark mode image URLs for GitHub .md README.md
+OVERVIEW_FILE_NAME_LIGHT = "overviewLightMode.svg"  # github .md light mode
+OVERVIEW_FILE_NAME_DARK = "overviewDarkMode.svg"  # github .md dark mode
+LANGUAGES_FILE_NAME_LIGHT = "languagesLightMode.svg"  # github .md light mode
+LANGUAGES_FILE_NAME_DARK = "languagesDarkMode.svg"  # github .md dark mode
 
 
 ###############################################################################
@@ -60,14 +71,22 @@ class GenerateImages:
         """
         Generate an SVG badge with summary statistics
         """
-        with open("src/templates/overviewLightMode.svg", "r") as f:
+        with open("{}{}".format(TEMPLATE_PATH,
+                                OVERVIEW_FILE_NAME), "r") as f:
+            output = f.read()
+        with open("{}{}".format(TEMPLATE_PATH,
+                                OVERVIEW_FILE_NAME_LIGHT), "r") as f:
             output_light_mode = f.read()
-        with open("src/templates/overviewDarkMode.svg", "r") as f:
+        with open("{}{}".format(TEMPLATE_PATH,
+                                OVERVIEW_FILE_NAME_DARK), "r") as f:
             output_dark_mode = f.read()
 
         name = (await self.__stats.name) + "'" \
             if (await self.__stats.name)[-1] == "s" \
             else (await self.__stats.name) + "'s"
+        output = sub("{{ name }}",
+                     name,
+                     output)
         output_light_mode = sub("{{ name }}",
                                 name,
                                 output_light_mode)
@@ -76,6 +95,9 @@ class GenerateImages:
                                output_dark_mode)
 
         views = f"{await self.__stats.views:,}"
+        output = sub("{{ views }}",
+                     views,
+                     output)
         output_light_mode = sub("{{ views }}",
                                 views,
                                 output_light_mode)
@@ -84,6 +106,9 @@ class GenerateImages:
                                output_dark_mode)
 
         clones = f"{await self.__stats.clones:,}"
+        output = sub("{{ clones }}",
+                     clones,
+                     output)
         output_light_mode = sub("{{ clones }}",
                                 clones,
                                 output_light_mode)
@@ -92,6 +117,9 @@ class GenerateImages:
                                output_dark_mode)
 
         stars = f"{await self.__stats.stargazers:,}"
+        output = sub("{{ stars }}",
+                     stars,
+                     output)
         output_light_mode = sub("{{ stars }}",
                                 stars,
                                 output_light_mode)
@@ -100,6 +128,9 @@ class GenerateImages:
                                output_dark_mode)
 
         forks = f"{await self.__stats.forks:,}"
+        output = sub("{{ forks }}",
+                     forks,
+                     output)
         output_light_mode = sub("{{ forks }}",
                                 forks,
                                 output_light_mode)
@@ -108,6 +139,9 @@ class GenerateImages:
                                output_dark_mode)
 
         contributions = f"{await self.__stats.total_contributions:,}"
+        output = sub("{{ contributions }}",
+                     contributions,
+                     output)
         output_light_mode = sub("{{ contributions }}",
                                 contributions,
                                 output_light_mode)
@@ -118,6 +152,9 @@ class GenerateImages:
 
         changed = (await self.__stats.lines_changed)[0] + \
                   (await self.__stats.lines_changed)[1]
+        output = sub("{{ lines_changed }}",
+                     f"{changed:,}",
+                     output)
         output_light_mode = sub("{{ lines_changed }}",
                                 f"{changed:,}",
                                 output_light_mode)
@@ -125,15 +162,21 @@ class GenerateImages:
                                f"{changed:,}",
                                output_dark_mode)
 
-        contributions_percentage = await self.__stats.contributions_percentage
-        output_light_mode = sub("{{ contributions_percentage }}",
-                                contributions_percentage,
+        avg_contribution_percent = await self.__stats.avg_contribution_percent
+        output = sub("{{ avg_contribution_percent }}",
+                     avg_contribution_percent,
+                     output)
+        output_light_mode = sub("{{ avg_contribution_percent }}",
+                                avg_contribution_percent,
                                 output_light_mode)
-        output_dark_mode = sub("{{ contributions_percentage }}",
-                               contributions_percentage,
+        output_dark_mode = sub("{{ avg_contribution_percent }}",
+                               avg_contribution_percent,
                                output_dark_mode)
 
         repos = f"{len(await self.__stats.repos):,}"
+        output = sub("{{ repos }}",
+                     repos,
+                     output)
         output_light_mode = sub("{{ repos }}",
                                 repos,
                                 output_light_mode)
@@ -142,6 +185,9 @@ class GenerateImages:
                                output_dark_mode)
 
         collaborators = f"{await self.__stats.collaborators:,}"
+        output = sub("{{ collaborators }}",
+                     collaborators,
+                     output)
         output_light_mode = sub("{{ collaborators }}",
                                 collaborators,
                                 output_light_mode)
@@ -149,7 +195,10 @@ class GenerateImages:
                                collaborators,
                                output_dark_mode)
 
-        contributors = f"{len(await self.__stats.contributors) - 1:,}"
+        contributors = f"{max(len(await self.__stats.contributors) - 1, 0):,}"
+        output = sub("{{ contributors }}",
+                     contributors,
+                     output)
         output_light_mode = sub("{{ contributors }}",
                                 contributors,
                                 output_light_mode)
@@ -158,6 +207,9 @@ class GenerateImages:
                                output_dark_mode)
 
         views_from = (await self.__stats.views_from_date)
+        output = sub("{{ views_from_date }}",
+                     f"Repository views (as of {views_from})",
+                     output)
         output_light_mode = sub("{{ views_from_date }}",
                                 f"Repository views (as of {views_from})",
                                 output_light_mode)
@@ -166,6 +218,9 @@ class GenerateImages:
                                output_dark_mode)
 
         clones_from = (await self.__stats.clones_from_date)
+        output = sub("{{ clones_from_date }}",
+                     f"Repository clones (as of {clones_from})",
+                     output)
         output_light_mode = sub("{{ clones_from_date }}",
                                 f"Repository clones (as of {clones_from})",
                                 output_light_mode)
@@ -174,6 +229,9 @@ class GenerateImages:
                                output_dark_mode)
 
         issues = f"{await self.__stats.issues:,}"
+        output = sub("{{ issues }}",
+                     issues,
+                     output)
         output_light_mode = sub("{{ issues }}",
                                 issues,
                                 output_light_mode)
@@ -182,6 +240,9 @@ class GenerateImages:
                                output_dark_mode)
 
         pull_requests = f"{await self.__stats.pull_requests:,}"
+        output = sub("{{ pull_requests }}",
+                     pull_requests,
+                     output)
         output_light_mode = sub("{{ pull_requests }}",
                                 pull_requests,
                                 output_light_mode)
@@ -190,18 +251,28 @@ class GenerateImages:
                                output_dark_mode)
 
         generate_output_folder()
-        with open("{}/overviewLightMode.svg".format(OUTPUT_DIR), "w") as f:
+        with open("{}/{}".format(OUTPUT_DIR,
+                                 OVERVIEW_FILE_NAME), "w") as f:
+            f.write(output)
+        with open("{}/{}".format(OUTPUT_DIR,
+                                 OVERVIEW_FILE_NAME_LIGHT), "w") as f:
             f.write(output_light_mode)
-        with open("{}/overviewDarkMode.svg".format(OUTPUT_DIR), "w") as f:
+        with open("{}/{}".format(OUTPUT_DIR,
+                                 OVERVIEW_FILE_NAME_DARK), "w") as f:
             f.write(output_dark_mode)
 
     async def generate_languages(self) -> None:
         """
         Generate an SVG badge with summary languages used
         """
-        with open("src/templates/languagesLightMode.svg", "r") as f:
+        with open("{}{}".format(TEMPLATE_PATH,
+                                LANGUAGES_FILE_NAME), "r") as f:
+            output = f.read()
+        with open("{}{}".format(TEMPLATE_PATH,
+                                LANGUAGES_FILE_NAME_LIGHT), "r") as f:
             output_light_mode = f.read()
-        with open("src/templates/languagesDarkMode.svg", "r") as f:
+        with open("{}{}".format(TEMPLATE_PATH,
+                                LANGUAGES_FILE_NAME_DARK), "r") as f:
             output_dark_mode = f.read()
 
         progress = ""
@@ -238,6 +309,9 @@ class GenerateImages:
                     </span>
             </li>"""
 
+        output = sub(r"{{ progress }}",
+                     progress,
+                     output)
         output_light_mode = sub(r"{{ progress }}",
                                 progress,
                                 output_light_mode)
@@ -245,6 +319,9 @@ class GenerateImages:
                                progress,
                                output_dark_mode)
 
+        output = sub(r"{{ lang_list }}",
+                     lang_list,
+                     output)
         output_light_mode = sub(r"{{ lang_list }}",
                                 lang_list,
                                 output_light_mode)
@@ -253,7 +330,12 @@ class GenerateImages:
                                output_dark_mode)
 
         generate_output_folder()
-        with open("{}/languagesLightMode.svg".format(OUTPUT_DIR), "w") as f:
+        with open("{}/{}".format(OUTPUT_DIR,
+                                 LANGUAGES_FILE_NAME), "w") as f:
+            f.write(output)
+        with open("{}/{}".format(OUTPUT_DIR,
+                                 LANGUAGES_FILE_NAME_LIGHT), "w") as f:
             f.write(output_light_mode)
-        with open("{}/languagesDarkMode.svg".format(OUTPUT_DIR), "w") as f:
+        with open("{}/{}".format(OUTPUT_DIR,
+                                 LANGUAGES_FILE_NAME_DARK), "w") as f:
             f.write(output_dark_mode)

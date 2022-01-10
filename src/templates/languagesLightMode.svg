@@ -50,12 +50,6 @@ li {
   animation-fill-mode: forwards;
 }
 
-@keyframes slideIn {
-  to {
-    transform: translateX(0);
-  }
-}
-
 div.ellipsis {
   height: 100%;
   overflow: hidden;
@@ -91,6 +85,12 @@ div.ellipsis {
 
 .percent {
   color: rgb(88, 96, 105);
+}
+
+@keyframes slideIn {
+  to {
+    transform: translateX(0);
+  }
 }
 </style>
 <g>

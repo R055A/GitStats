@@ -33,7 +33,6 @@ th {
   text-align: left;
   font-size: 16px;
   font-weight: 600;
-  color: #539bf5;
 }
 
 td {
@@ -42,7 +41,6 @@ td {
   padding: 0.25em;
   font-size: 12px;
   line-height: 18px;
-  color: #adbac7;
 }
 
 tr {
@@ -54,9 +52,36 @@ tr {
 }
 
 .octicon {
-  fill: #768390;
   margin-right: 1ch;
   vertical-align: top;
+}
+
+@media (prefers-color-scheme: light) {
+  th {
+    color: #0969da;
+  }
+
+  td {
+    color: #233;
+  }
+
+  .octicon {
+    fill: rgb(89, 96, 105);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  th {
+    color: #539bf5;
+  }
+
+  td {
+    color: #adbac7;
+  }
+
+  .octicon {
+    fill: #768390;
+  }
 }
 
 @keyframes slideIn {

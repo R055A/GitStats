@@ -141,7 +141,6 @@ class GitHubApiQueries(object):
                         field: UPDATED_AT,
                         direction: DESC
                     }},
-                    isFork: false,
                     after: {
                         "null" if owned_cursor is None 
                         else '"' + owned_cursor + '"'
@@ -156,7 +155,11 @@ class GitHubApiQueries(object):
                                 totalCount
                             }}
                             forkCount
-                            languages(first: 10, orderBy: {{
+                            isFork
+                            isEmpty
+                            isArchived
+                            isPrivate
+                            languages(first: 20, orderBy: {{
                                 field: SIZE, 
                                 direction: DESC
                             }}) {{
@@ -196,7 +199,11 @@ class GitHubApiQueries(object):
                                 totalCount
                             }}
                             forkCount
-                            languages(first: 10, orderBy: {{
+                            isFork
+                            isEmpty
+                            isArchived
+                            isPrivate
+                            languages(first: 20, orderBy: {{
                                 field: SIZE, 
                                 direction: DESC
                             }}) {{
