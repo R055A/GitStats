@@ -4,7 +4,7 @@ Generate daily updated visualizations of user and repository statistics from the
 
 ![GitStats Overview - Light](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/overviewLightMode.svg#gh-light-mode-only)![GitStats Overview - Dark](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/overviewDarkMode.svg#gh-dark-mode-only)![GitStats Languages - Light](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/languagesLightMode.svg#gh-light-mode-only)![GitStats Languages - Dark](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/languagesDarkMode.svg#gh-dark-mode-only)
 
-> This is a modification of [`jstrieb/github-stats`](https://github.com/jstrieb/github-stats) with many additional statistics, options, and dark mode support
+> This is a modification of [`jstrieb/github-stats`](https://github.com/jstrieb/github-stats) with many additional statistics, options and dark mode support
 
 By default, statistical data for GitHub repositories an authenticated user either owns, has collaborative access to, or has 
 otherwise contributed to are fetched from the GitHub API for visualization. 
@@ -32,7 +32,7 @@ It also seems that statistics for contributions to GitHub repositories that an a
    1. [Generate your own copy of this repository without the commit history](https://github.com/R055A/GitStats/generate)
       * *Note: the first GitHub Actions workflow initiated at creation of the copied repository is expected to fail*
    2. [Fork a copy of this repository with the commit history configured to sync changes](https://github.com/R055A/GitStats/fork)
-      * *Note: only the master branch is required when forking*
+      * *Note: this copies all branches including the `action_branch` with statistics, but this can be overwritten*
 
 ### Generate a New Personal Access Token
 
