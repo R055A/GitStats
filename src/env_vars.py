@@ -29,10 +29,6 @@ class EnvironmentVariables:
                  repo_last_viewed: Optional[str] = getenv("LAST_VIEWED"),
                  repo_first_viewed: Optional[str] = getenv("FIRST_VIEWED"),
                  store_repo_view_count: str = getenv("STORE_REPO_VIEWS"),
-                 repo_clones: Optional[str] = getenv("REPO_CLONES"),
-                 repo_last_cloned: Optional[str] = getenv("LAST_CLONED"),
-                 repo_first_cloned: Optional[str] = getenv("FIRST_CLONED"),
-                 store_repo_clone_count: str = getenv("STORE_REPO_CLONES"),
                  more_collabs: Optional[str] = getenv("MORE_COLLABS"),
                  manually_added_repos: Optional[str] = getenv("MORE_REPOS"),
                  only_included_repos: Optional[str] = getenv("ONLY_INCLUDED")):
@@ -125,50 +121,6 @@ class EnvironmentVariables:
             self.__db.set_views_from_date(self.repo_first_viewed)
             self.__db.set_views_to_date(self.repo_last_viewed)
 
-        self.store_repo_clone_count = (
-                not store_repo_clone_count
-                or store_repo_clone_count.strip().lower() != "false"
-        )
-
-        if self.store_repo_clone_count:
-            try:
-                if repo_clones:
-                    self.repo_clones = int(repo_clones)
-                    self.__db.set_clones_count(self.repo_clones)
-                else:
-                    self.repo_clones = self.__db.clones
-            except ValueError:
-                self.repo_clones = self.__db.clones
-
-            if repo_last_cloned:
-                try:
-                    if repo_last_cloned == datetime\
-                            .strptime(repo_last_cloned, self.__DATE_FORMAT)\
-                            .strftime(self.__DATE_FORMAT):
-                        self.repo_last_cloned = repo_last_cloned
-                except ValueError:
-                    self.repo_last_cloned = self.__db.clones_to_date
-            else:
-                self.repo_last_cloned = self.__db.clones_to_date
-
-            if repo_first_cloned:
-                try:
-                    if repo_first_cloned == datetime\
-                            .strptime(repo_first_cloned, self.__DATE_FORMAT)\
-                            .strftime(self.__DATE_FORMAT):
-                        self.repo_first_cloned = repo_first_cloned
-                except ValueError:
-                    self.repo_first_cloned = self.__db.clones_from_date
-            else:
-                self.repo_first_cloned = self.__db.clones_from_date
-        else:
-            self.repo_clones = 0
-            self.__db.set_clones_count(self.repo_clones)
-            self.repo_last_cloned = "0000-00-00"
-            self.repo_first_cloned = "0000-00-00"
-            self.__db.set_clones_from_date(self.repo_first_cloned)
-            self.__db.set_clones_to_date(self.repo_last_cloned)
-
         try:
             self.more_collabs = int(more_collabs) if more_collabs else 0
         except ValueError:
@@ -202,18 +154,3 @@ class EnvironmentVariables:
         self.repo_first_viewed = new_first_viewed_date
         environ["FIRST_VIEWED"] = self.repo_first_viewed
         self.__db.set_views_from_date(self.repo_first_viewed)
-
-    def set_clones(self, clones: any) -> None:
-        self.repo_clones += int(clones)
-        environ["REPO_CLONES"] = str(self.repo_clones)
-        self.__db.set_clones_count(self.repo_clones)
-
-    def set_last_cloned(self, new_last_cloned_date: str) -> None:
-        self.repo_last_cloned = new_last_cloned_date
-        environ["LAST_CLONED"] = self.repo_last_cloned
-        self.__db.set_clones_to_date(self.repo_last_cloned)
-
-    def set_first_cloned(self, new_first_cloned_date: str) -> None:
-        self.repo_first_cloned = new_first_cloned_date
-        environ["FIRST_CLONED"] = self.repo_first_cloned
-        self.__db.set_clones_from_date(self.repo_first_cloned)
