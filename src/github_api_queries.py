@@ -142,7 +142,7 @@ class GitHubApiQueries(object):
                         direction: DESC
                     }},
                     after: {
-                        "null" if owned_cursor is None 
+                        "null" if owned_cursor is None
                         else '"' + owned_cursor + '"'
                     }) {{
                         pageInfo {{
@@ -160,7 +160,7 @@ class GitHubApiQueries(object):
                             isArchived
                             isPrivate
                             languages(first: 20, orderBy: {{
-                                field: SIZE, 
+                                field: SIZE,
                                 direction: DESC
                             }}) {{
                                 edges {{
@@ -187,7 +187,7 @@ class GitHubApiQueries(object):
                         PULL_REQUEST_REVIEW
                     ]
                     after: {
-                    "null" if contrib_cursor is None 
+                    "null" if contrib_cursor is None
                     else '"' + contrib_cursor + '"'}) {{
                         pageInfo {{
                             hasNextPage
@@ -204,7 +204,7 @@ class GitHubApiQueries(object):
                             isArchived
                             isPrivate
                             languages(first: 20, orderBy: {{
-                                field: SIZE, 
+                                field: SIZE,
                                 direction: DESC
                             }}) {{
                                 edges {{

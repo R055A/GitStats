@@ -39,7 +39,6 @@ class GitHubRepoStats(object):
         self._contributions_percentage: Optional[str] = None
         self._avg_percent: Optional[str] = None
         self._views: Optional[int] = None
-        self._clones: Optional[int] = None
         self._collaborators: Optional[int] = None
         self._contributors: Optional[Set[str]] = None
         self._views_from_date: Optional[str] = None
@@ -90,8 +89,6 @@ class GitHubRepoStats(object):
         Avg. % of code change contributions: {avg_prcnt}
         Project page views: {await self.views:,}
         Project page views from date: {await self.views_from_date}
-        Project repository clones: {await self.clones:,}
-        Project repository clones from date: {await self.clones_from_date}
         Project repository collaborators: {await self.collaborators:,}
         Project repository contributors: {contribs:,}
         Languages:\n\t\t\t- {formatted_languages}"""
@@ -248,6 +245,7 @@ class GitHubRepoStats(object):
                     self._empty_repos.add(repo)
                     continue
 
+                # TODO: Improve languages to scale by number of contributions to specific filetypes
                 if repo_stats.get("language"):
                     langs = await self.queries.\
                         query_rest(f"/repos/{repo}/languages")
@@ -268,8 +266,6 @@ class GitHubRepoStats(object):
                                 "color": lang_cols.get(lang).get("color")
                             }
 
-        # TODO: Improve languages to scale by number of contributions to
-        #       specific filetypes
         langs_total = sum([v.get("size", 0) for v in self._languages.values()])
         for k, v in self._languages.items():
             v["prop"] = 100 * (v.get("size", 0) / langs_total)
@@ -518,60 +514,6 @@ class GitHubRepoStats(object):
         return self._views_from_date
 
     @property
-    async def clones(self) -> int:
-        """
-        Note: API returns a user's repository clone data for the last 14 days.
-        This counts clones as of the initial date the code is first run in repo
-        :return: clone count of user's repositories as of a given (first) date
-        """
-        if self._clones is not None:
-            return self._clones
-
-        last_cloned = self.environment_vars.repo_last_cloned
-        today = date.today().strftime(self.__DATE_FORMAT)
-        yesterday = (date.today() - timedelta(1)).strftime(self.__DATE_FORMAT)
-        dates = {last_cloned, yesterday}
-
-        today_clone_count = 0
-        for repo in await self.repos:
-            r = await self.queries.query_rest(f"/repos/{repo}/traffic/clones")
-
-            for clone in r.get("clones", []):
-                if clone.get("timestamp")[:10] == today:
-                    today_clone_count += clone.get("count", 0)
-                elif clone.get("timestamp")[:10] > last_cloned:
-                    self.environment_vars.set_clones(clone.get("count", 0))
-                    dates.add(clone.get("timestamp")[:10])
-
-        if last_cloned == "0000-00-00":
-            dates.remove(last_cloned)
-
-        if self.environment_vars.store_repo_clone_count:
-            self.environment_vars.set_last_cloned(yesterday)
-
-            if self.environment_vars.repo_first_cloned == "0000-00-00":
-                self.environment_vars.repo_first_cloned = min(dates)
-            self.environment_vars.\
-                set_first_cloned(self.environment_vars.repo_first_cloned)
-            self._clones_from_date = self.environment_vars.repo_first_cloned
-        else:
-            self._clones_from_date = min(dates)
-
-        self._clones = self.environment_vars.repo_clones + today_clone_count
-        return self._clones
-
-    @property
-    async def clones_from_date(self) -> str:
-        """
-        :return: the first date included in the repo clone count
-        """
-        if self._clones_from_date is not None:
-            return self._clones_from_date
-        await self.clones
-        assert self._clones_from_date is not None
-        return self._clones_from_date
-
-    @property
     async def collaborators(self) -> int:
         """
         :return: count of total collaborators to user's repositories
@@ -620,7 +562,7 @@ class GitHubRepoStats(object):
                 .query_rest(f"/repos/{repo}/pulls?state=all")
 
             for obj in r:
-                if isinstance(obj, dict):
+                if isinstance(obj, dict) and obj.get('user', {}).get('login') == self.environment_vars.username:
                     self._pull_requests += 1
         return self._pull_requests
 
@@ -639,7 +581,7 @@ class GitHubRepoStats(object):
                 .query_rest(f"/repos/{repo}/issues?state=all")
 
             for obj in r:
-                if isinstance(obj, dict):
+                if isinstance(obj, dict) and obj.get('user', {}).get('login') == self.environment_vars.username:
                     try:
                         if obj.get("html_url").split("/")[-2] == "issues":
                             self._issues += 1
