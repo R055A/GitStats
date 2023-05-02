@@ -23,12 +23,13 @@ Generate daily updated visualizations of user and repository statistics from the
 ### Generate a New Personal Access Token
 
 2. Generate a personal access token by following these steps:
-   1. If you are logged in, click this link to: [generate a new token](https://github.com/settings/tokens/new)
+   1. If you are logged in, click this link to: [generate a new "classic" token](https://github.com/settings/tokens/new)
       * *Otherwise, to learn how to generate a personal access token: [read these instructions](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)*
+   2. Ensure it is a "classic" token being generated and not a "fine-grained" token
    2. Name the token
    3. Select your preferred '***Expiration***' date
    4. Select `repo` for '<u>**Full control of private repositories**</u>'
-   5. Select `read:user` to '<u>**Read ALL user profile data**</u>'
+   5. Select `read:user` to '<u>**Read only ALL user profile data**</u>'
    6. Click the '***Generate token***' button
    7. Copy the generated token - there is only one opportunity provided for this
 
