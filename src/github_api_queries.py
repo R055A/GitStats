@@ -4,7 +4,6 @@ from asyncio import Semaphore, sleep
 from requests import post, get
 from aiohttp import ClientSession
 from typing import Dict, Optional, List
-from requests import get
 from json import loads
 
 ###############################################################################

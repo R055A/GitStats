@@ -13,7 +13,8 @@ OUTPUT_DIR = "generated_images"  # directory for storing generated images
 TEMPLATE_PATH = "src/templates/"
 OVERVIEW_FILE_NAME = "overview.svg"
 LANGUAGES_FILE_NAME = "languages.svg"
-TXT_SPACER_MAX_LEN = 4
+TXT_SPACER_MAX_LEN = 7
+MAX_NAME_LEN = 18
 
 
 ###############################################################################
@@ -68,9 +69,17 @@ class GenerateImages:
                                 OVERVIEW_FILE_NAME), "r") as f:
             output = f.read()
 
-        name = (await self.__stats.name) + "'" \
-            if (await self.__stats.name)[-1] == "s" \
-            else (await self.__stats.name) + "'s"
+        name = await self.__stats.name
+        name += "'" if name[-1] == "s" else "'s"
+        if len(name) > MAX_NAME_LEN:
+            names = name.split(' ')
+            if len(names) == 1:
+                name = names[0]
+            elif len(names[0][0] + '. ' + names[-1]) > MAX_NAME_LEN:
+                name = names[0] + "'" if names[0][-1] == "s" else "'s"
+            else:
+                name = names[0][0] + '. ' + names[-1]
+            name = name if len(name) <= MAX_NAME_LEN else name[:MAX_NAME_LEN-2] + '..'
         output = sub("{{ name }}",
                      name,
                      output)
@@ -83,8 +92,7 @@ class GenerateImages:
         forks = f"{await self.__stats.forks:,}"
         stars = f"{await self.__stats.stargazers:,}"
         forks_and_stars = \
-            forks + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(forks)) + 1) + '|' \
-            + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(stars)) + 1) + stars
+            forks + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(forks)) + 1) + '|   ' + stars
         output = sub("{{ forks_and_stars }}",
                      forks_and_stars,
                      output)
@@ -117,14 +125,13 @@ class GenerateImages:
 
         views_from = (await self.__stats.views_from_date)
         output = sub("{{ views_from_date }}",
-                     f"Repository views (as of {views_from})",
+                     f"Repo views (as of {views_from})",
                      output)
 
         pull_requests = f"{await self.__stats.pull_requests:,}"
         issues = f"{await self.__stats.issues:,}"
         pull_requests_and_issues = \
-            pull_requests + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1) + '|' \
-            + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(issues)) + 1) + issues
+            pull_requests + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1) + '|   ' + issues
         output = sub("{{ pull_requests_and_issues }}",
                      pull_requests_and_issues,
                      output)
@@ -147,6 +154,12 @@ class GenerateImages:
         sorted_languages = sorted((await self.__stats.languages).items(),
                                   reverse=True,
                                   key=lambda t: t[1].get("size"))
+
+        lang_count = str(len(sorted_languages))
+        num_excluded_languages = len(await self.__stats.excluded_languages)
+        if num_excluded_languages > 0:
+            lang_count += ' [+' + str(num_excluded_languages) + ']'
+
         delay_between = 150
 
         for i, (lang, data) in enumerate(sorted_languages):
@@ -175,6 +188,10 @@ class GenerateImages:
                         {data.get("prop", 0):0.2f}%
                     </span>
             </li>"""
+
+        output = sub(r"{{ lang_count }}",
+                     lang_count,
+                     output)
 
         output = sub(r"{{ progress }}",
                      progress,

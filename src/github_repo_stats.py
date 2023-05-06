@@ -18,6 +18,7 @@ class GitHubRepoStats(object):
     """
 
     __DATE_FORMAT = '%Y-%m-%d'
+    __EXCLUDED_USER_NAMES = ['dependabot[bot]']  # exclude bot data from being included in statistical calculations
 
     def __init__(self,
                  environment_vars: EnvironmentVariables,
@@ -33,16 +34,14 @@ class GitHubRepoStats(object):
         self._forks: Optional[int] = None
         self._total_contributions: Optional[int] = None
         self._languages: Optional[Dict[str, Any]] = None
+        self._excluded_languages: Optional[Set[str]] = None
         self._repos: Optional[Set[str]] = None
         self._users_lines_changed: Optional[Tuple[int, int]] = None
-        self._total_lines_changed: Optional[Tuple[int, int]] = None
-        self._contributions_percentage: Optional[str] = None
         self._avg_percent: Optional[str] = None
         self._views: Optional[int] = None
         self._collaborators: Optional[int] = None
         self._contributors: Optional[Set[str]] = None
         self._views_from_date: Optional[str] = None
-        self._clones_from_date: Optional[str] = None
         self._pull_requests: Optional[int] = None
         self._issues: Optional[int] = None
         self._empty_repos: Optional[Set[str]] = None
@@ -57,21 +56,8 @@ class GitHubRepoStats(object):
         )
 
         users_lines_changed = await self.lines_changed
-        total_lines_changed = self._total_lines_changed
-
-        if users_lines_changed[0] > 0:
-            prcnt_added = users_lines_changed[0] / total_lines_changed[0] * 100
-        else:
-            prcnt_added = 0.0
-
-        if users_lines_changed[1] > 0:
-            prcnt_dltd = users_lines_changed[1] / total_lines_changed[1] * 100
-        else:
-            prcnt_dltd = 0.0
-        ttl_prcnt = await self.contributions_percentage
-        avg_prcnt = await self.avg_contribution_percent
-
-        contribs = max(len(await self.contributors) - 1, 0)
+        avg_percent = await self.avg_contribution_percent
+        contributors = max(len(await self.contributors) - 1, 0)
 
         return f"""GitHub Repository Statistics:
         Stargazers: {await self.stargazers:,}
@@ -82,15 +68,13 @@ class GitHubRepoStats(object):
         Repositories with contributions: {len(await self.repos):,}
         Lines of code added: {users_lines_changed[0]:,}
         Lines of code deleted: {users_lines_changed[1]:,}
-        Lines of code changed: {sum(users_lines_changed):,}
-        Percentage of total code line additions: {prcnt_added:0.2f}%
-        Percentage of total code line deletions: {prcnt_dltd:0.2f}%
-        Percentage of code change contributions: {ttl_prcnt}
-        Avg. % of code change contributions: {avg_prcnt}
+        Total lines of code changed: {sum(users_lines_changed):,}
+        Avg. % of contributions (per collab repo): {avg_percent}
         Project page views: {await self.views:,}
         Project page views from date: {await self.views_from_date}
         Project repository collaborators: {await self.collaborators:,}
-        Project repository contributors: {contribs:,}
+        Project repository contributors: {contributors:,}
+        Total number of languages: {len(list(languages.keys()))} (+{len(await self.excluded_languages):,})
         Languages:\n\t\t\t- {formatted_languages}"""
 
     async def is_repo_name_invalid(self, repo_name) -> bool:
@@ -136,6 +120,7 @@ class GitHubRepoStats(object):
         """
         self._stargazers = 0
         self._forks = 0
+        self._excluded_languages = set()
         self._languages = dict()
         self._repos = set()
         self._empty_repos = set()
@@ -196,6 +181,7 @@ class GitHubRepoStats(object):
                     languages = await self.languages
 
                     if name in self.environment_vars.exclude_langs:
+                        self._excluded_languages.add(name)
                         continue
 
                     if name in languages:
@@ -315,6 +301,17 @@ class GitHubRepoStats(object):
         return self._languages
 
     @property
+    async def excluded_languages(self) -> Set:
+        """
+        :return: summary of languages used by the user
+        """
+        if self._excluded_languages is not None:
+            return self._excluded_languages
+        await self.get_stats()
+        assert self._excluded_languages is not None
+        return self._excluded_languages
+
+    @property
     async def languages_proportional(self) -> Dict:
         """
         :return: summary of languages used by the user, with proportional usage
@@ -344,15 +341,13 @@ class GitHubRepoStats(object):
             return self._total_contributions
         self._total_contributions = 0
 
-        years = ((await self.queries.query(GitHubApiQueries
-                                           .contributions_all_years()))
+        years = ((await self.queries.query(GitHubApiQueries.contributions_all_years()))
                  .get("data", {})
                  .get("viewer", {})
                  .get("contributionsCollection", {})
                  .get("contributionYears", []))
 
-        by_year = ((await self.queries.query(GitHubApiQueries
-                                             .all_contributions(years)))
+        by_year = ((await self.queries.query(GitHubApiQueries.all_contributions(years)))
                    .get("data", {})
                    .get("viewer", {})
                    .values())
@@ -374,17 +369,17 @@ class GitHubRepoStats(object):
         if self._users_lines_changed is not None:
             return self._users_lines_changed
         contributor_set = set()
-        total_additions = 0
-        total_deletions = 0
-        additions = 0
-        deletions = 0
-        total_percentage = 0
+        repo_total_changes_arr = []
+        author_contribution_percentages = []
+        author_total_additions = 0
+        author_total_deletions = 0
 
         for repo in await self.repos:
             if repo in self._empty_repos:
                 continue
-            repo_total_changes = 0
-            author_total_changes = 0
+            other_authors_total_changes = 0
+            author_additions = 0
+            author_deletions = 0
 
             r = await self.queries\
                 .query_rest(f"/repos/{repo}/stats/contributors")
@@ -396,57 +391,34 @@ class GitHubRepoStats(object):
                 ):
                     continue
                 author = author_obj.get("author", {}).get("login", "")
-                contributor_set.add(author)
+                contributor_set.add(author)  # count number of total other contributors
 
-                if author != self.environment_vars.username:
+                if author != self.environment_vars.username and author not in self.__EXCLUDED_USER_NAMES:
                     for week in author_obj.get("weeks", []):
-                        total_additions += week.get("a", 0)
-                        total_deletions += week.get("d", 0)
-                        repo_total_changes += week.get("a", 0)
-                        repo_total_changes += week.get("d", 0)
+                        other_authors_total_changes += week.get("a", 0)
+                        other_authors_total_changes += week.get("d", 0)
                 else:
                     for week in author_obj.get("weeks", []):
-                        additions += week.get("a", 0)
-                        deletions += week.get("d", 0)
-                        author_total_changes += week.get("a", 0)
-                        author_total_changes += week.get("d", 0)
+                        author_additions += week.get("a", 0)
+                        author_deletions += week.get("d", 0)
+            author_total_additions += author_additions
+            author_total_deletions += author_deletions
 
-            repo_total_changes += author_total_changes
-            if author_total_changes > 0:
-                total_percentage += author_total_changes / repo_total_changes
-        if total_percentage > 0:
-            total_percentage /= len(self._repos) - len(self._empty_repos)
+            # calculate average author's contributions to each repository with more than one contributor
+            if repo not in self.environment_vars.exclude_collab_repos and \
+                    (author_additions + author_deletions) > 0 and other_authors_total_changes > 0:
+                repo_total_changes = other_authors_total_changes + author_additions + author_deletions
+                author_contribution_percentages.append((author_additions + author_deletions) / repo_total_changes)
+                repo_total_changes_arr.append(repo_total_changes)
+        if sum(author_contribution_percentages) > 0:
+            self._avg_percent = f"{(sum(author_contribution_percentages) / len(repo_total_changes_arr) * 100):0.2f}%"
         else:
-            total_percentage = 0.0
-        self._avg_percent = f"{total_percentage * 100:0.2f}%"
-
-        total_additions += additions
-        total_deletions += deletions
-        self._users_lines_changed = (additions, deletions)
-        self._total_lines_changed = (total_additions, total_deletions)
-
-        if sum(self._users_lines_changed) > 0:
-            ttl_changes = sum(self._total_lines_changed)
-            user_changes = sum(self._users_lines_changed)
-            percent_contribs = user_changes / ttl_changes * 100
-        else:
-            percent_contribs = 0.0
-        self._contributions_percentage = f"{percent_contribs:0.2f}%"
+            self._avg_percent = 'N/A'
 
         self._contributors = contributor_set
 
+        self._users_lines_changed = (author_total_additions, author_total_deletions)
         return self._users_lines_changed
-
-    @property
-    async def contributions_percentage(self) -> str:
-        """
-        :return: str representing the percentage of user's repo contributions
-        """
-        if self._contributions_percentage is not None:
-            return self._contributions_percentage
-        await self.lines_changed
-        assert self._contributions_percentage is not None
-        return self._contributions_percentage
 
     @property
     async def avg_contribution_percent(self) -> str:
@@ -493,8 +465,7 @@ class GitHubRepoStats(object):
 
             if self.environment_vars.repo_first_viewed == "0000-00-00":
                 self.environment_vars.repo_first_viewed = min(dates)
-            self.environment_vars. \
-                set_first_viewed(self.environment_vars.repo_first_viewed)
+            self.environment_vars.set_first_viewed(self.environment_vars.repo_first_viewed)
             self._views_from_date = self.environment_vars.repo_first_viewed
         else:
             self._views_from_date = min(dates)
@@ -531,9 +502,8 @@ class GitHubRepoStats(object):
                 if isinstance(obj, dict):
                     collaborator_set.add(obj.get("login"))
 
-        collabs = max(0, len(collaborator_set
-                             .union(await self.contributors)) - 1)
-        self._collaborators = self.environment_vars.more_collabs + collabs
+        collaborators = max(0, len(collaborator_set.union(await self.contributors)) - 1)
+        self._collaborators = self.environment_vars.more_collaborators + collaborators
         return self._collaborators
 
     @property
@@ -550,7 +520,7 @@ class GitHubRepoStats(object):
     @property
     async def pull_requests(self) -> int:
         """
-        :return: count of pull requests in repositories
+        :return: count of (user) pull requests in repositories
         """
         if self._pull_requests is not None:
             return self._pull_requests
@@ -569,7 +539,7 @@ class GitHubRepoStats(object):
     @property
     async def issues(self) -> int:
         """
-        :return: count of issues in repositories
+        :return: count of (user) issues in repositories
         """
         if self._issues is not None:
             return self._issues
