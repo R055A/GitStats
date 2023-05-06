@@ -1,4 +1,4 @@
-# [GitHub Stats Visualization](https://github.com/R055A/GitStats) 📈🔭
+# 📈 [GitHub Stats Visualization](https://github.com/R055A/GitStats) 🔭
 
 Generate daily updated visualizations of user and repository statistics from the GitHub [GraphQL](https://docs.github.com/en/graphql) and [REST](https://docs.github.com/en/rest) APIs using GitHub [Actions](https://docs.github.com/en/actions) and [Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). Customizable visualizations support dark and light mode and can adapt to device sizes.
 
@@ -6,7 +6,7 @@ Generate daily updated visualizations of user and repository statistics from the
 
 [![GitStats Overview](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/overview.svg)![GitStats Languages](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/languages.svg)](https://github.com/R055A/GitStats)
 
-# Instructions
+# :rocket: Instructions
 
 <details>
 <summary>Click drop-down to view step-by-step instructions for generating your own GitHub statistics visualizations
@@ -77,14 +77,14 @@ Generate daily updated visualizations of user and repository statistics from the
    
 </details>
 
-# Options
+# :closed_lock_with_key: Options
 
 <details>
-<summary>Click drop-down to view Repository Secrets for customizing GitHub statistic visualizations
+<summary>Click drop-down to view optional repository Secrets for customizing GitHub statistic visualizations
 </summary>
 
 * ### Optional Secret *Name*: `EXCLUDED`
-  For excluding listed repositories from being included in the generated statistic visualizations.
+  For excluding repositories from being included entirely in the generated statistic visualizations.
   
   **Instructions**:
   * enter *Value* in the following format (separated by commas):
@@ -92,15 +92,16 @@ Generate daily updated visualizations of user and repository statistics from the
   * example:
     * `jstrieb/github-stats,rahul-jha98/github-stats-transparent,idiotWu/stats`
 * ### Optional Secret *Name*: `ONLY_INCLUDED`
-  For **ONLY** including listed repositories in the generated statistic visualizations.
+  For **ONLY** including repositories in the generated statistic visualizations
+    - such as when there are fewer repositories to include than to exclude
   
-  **Instructions**:
-  * enter *Value* in the following format (separated by commas):
-    * `[owner/repo],[owner/repo],...,[owner/repo]`
-  * example:
-    * `R055A/GitStats,R055A/R055A`
+    **Instructions**:
+    * enter *Value* in the following format (separated by commas):
+      * `[owner/repo],[owner/repo],...,[owner/repo]`
+    * example:
+      * `R055A/GitStats,R055A/R055A`
 * ### Optional Secret *Name*: `EXCLUDED_LANGS`
-  For excluding listed languages from being included in the generated statistic visualizations.
+  For excluding undesired languages from being included in the generated statistic visualizations
   
   **Instructions**:
   * enter *Value* in the following format (separated by commas):
@@ -108,25 +109,25 @@ Generate daily updated visualizations of user and repository statistics from the
   * example:
     * `HTML,Jupyter Notebook,Makefile,Dockerfile`
 * ### Optional Secret *Name*: `INCLUDE_FORKED_REPOS`
-  For including forked repositories in the generated statistic visualizations
+  Boolean option for including forked repositories in the generated statistic visualizations. These could repeat statistical calculations
     - `false` by default
-    
+
   **Instructions**:
   * enter *Value* in the following format:
     * `<boolean>`
   * examples:
     * `true`
 * ### Optional Secret *Name*: `EXCLUDE_CONTRIB_REPOS`
-  For excluding repositories (pull request) contributed to in the generated statistic visualizations
+  Boolean option for excluding non-owned repositories contributed to in the generated statistic visualizations
     - `false` by default
-    
+
   **Instructions**:
   * enter *Value* in the following format:
     * `<boolean>`
   * examples:
     * `true`
 * ### Optional Secret *Name*: `EXCLUDE_ARCHIVE_REPOS`
-  For excluding archived repositories in the generated statistic visualizations
+  Boolean option for excluding archived repositories in the generated statistic visualizations
     - `false` by default
     
   **Instructions**:
@@ -135,7 +136,8 @@ Generate daily updated visualizations of user and repository statistics from the
   * examples:
     * `true`
 * ### Optional Secret *Name*: `EXCLUDE_PRIVATE_REPOS`
-  For excluding private repositories in the generated statistic visualizations
+  Boolean option for excluding private repositories in the generated statistic visualizations
+    - for when you want to keep those secrets locked away from prying eyes
     - `false` by default
     
   **Instructions**:
@@ -144,7 +146,7 @@ Generate daily updated visualizations of user and repository statistics from the
   * examples:
     * `true`
 * ### Optional Secret *Name*: `EXCLUDE_PUBLIC_REPOS`
-  For excluding public repositories in the generated statistic visualizations
+  Boolean option for excluding public repositories in the generated statistic visualizations
     - `false` by default
     
   **Instructions**:
@@ -153,8 +155,8 @@ Generate daily updated visualizations of user and repository statistics from the
   * examples:
     * `true`
 * ### Optional Secret *Name*: `MORE_REPOS`
-  For including repositories that are otherwise not included in the generated statistic visualizations
-    - such as imported repositories with contributions
+  For including repositories that are otherwise not included in generated statistic visualizations when scraping by username
+    - such as repositories imported from, say, GitLab - hint: add emails used in imported repo commits to profile settings
     
   **Instructions**:
   * enter *Value* in the following format (separated by commas):
@@ -170,10 +172,23 @@ Generate daily updated visualizations of user and repository statistics from the
     * `<int>`
   * example:
     * `4`
+* ### Optional Secret *Name*: `EXCLUDED_COLLAB_REPOS`
+  For excluding collaborative repositories from being included in the average contribution statistics
+    - for example, such as for when 
+      - contributions are included in a collaborative repo, but it is not one of your projects
+      - someone deletes and re-adds the entire codebase a few times
+      - your performance is not fairly represented
+      - ninjas
+
+  **Instructions**:
+  * enter *Value* in the following format (separated by commas):
+    * `[owner/repo],[owner/repo],...,[owner/repo]`
+  * example:
+    * `jstrieb/github-stats,rahul-jha98/github-stats-transparent,idiotWu/stats`
 * ### Optional Secret *Name*: `STORE_REPO_VIEWS`
-  For storing generated repository view statistic visualization data beyond the 14 day-limit GitHub API allows 
+  Boolean for storing generated repository view statistic visualization data beyond the 14 day-limit GitHub API allows 
     - `true` by default
-    
+
   **Instructions**:
   * enter *Value* in the following format:
     * `<boolean>`
@@ -213,10 +228,10 @@ Generate daily updated visualizations of user and repository statistics from the
     * `2021-03-31`
 </details>
 
-# Support the Project
+# :green_heart: Support the Project
 
 There are a few things you can do to support the project:
 
 - ✨ Star this repository (and/or 🌠 star [`jstrieb/github-stats`](https://github.com/jstrieb/github-stats) and 🔭 follow [`jstrieb`](https://github.com/jstrieb) for more)
-- 📝 Report any bugs, glitches, or errors that you find
-- 🥹 Spare a donation to a worthy cause
+- :memo: Report any bugs :bug:, glitches, or errors that you find :monocle_face:
+- :money_with_wings: Spare a donation to a worthy cause 🥹

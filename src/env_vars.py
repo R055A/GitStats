@@ -29,9 +29,10 @@ class EnvironmentVariables:
                  repo_last_viewed: Optional[str] = getenv("LAST_VIEWED"),
                  repo_first_viewed: Optional[str] = getenv("FIRST_VIEWED"),
                  store_repo_view_count: str = getenv("STORE_REPO_VIEWS"),
-                 more_collabs: Optional[str] = getenv("MORE_COLLABS"),
+                 more_collaborators: Optional[str] = getenv("MORE_COLLABS"),
                  manually_added_repos: Optional[str] = getenv("MORE_REPOS"),
-                 only_included_repos: Optional[str] = getenv("ONLY_INCLUDED")):
+                 only_included_repos: Optional[str] = getenv("ONLY_INCLUDED"),
+                 exclude_collab_repos: Optional[str] = getenv("EXCLUDED_COLLAB_REPOS")):
         self.__db = GitRepoStatsDB()
 
         self.username = username
@@ -44,7 +45,7 @@ class EnvironmentVariables:
                 {x.strip() for x in exclude_repos.split(",")}
             )
 
-        if exclude_repos is None:
+        if exclude_langs is None:
             self.exclude_langs = set()
         else:
             self.exclude_langs = (
@@ -122,9 +123,9 @@ class EnvironmentVariables:
             self.__db.set_views_to_date(self.repo_last_viewed)
 
         try:
-            self.more_collabs = int(more_collabs) if more_collabs else 0
+            self.more_collaborators = int(more_collaborators) if more_collaborators else 0
         except ValueError:
-            self.more_collabs = 0
+            self.more_collaborators = 0
 
         if manually_added_repos is None:
             self.manually_added_repos = set()
@@ -138,6 +139,13 @@ class EnvironmentVariables:
         else:
             self.only_included_repos = (
                 {x.strip() for x in only_included_repos.split(",")}
+            )
+
+        if exclude_collab_repos is None:
+            self.exclude_collab_repos = set()
+        else:
+            self.exclude_collab_repos = (
+                {x.strip() for x in exclude_collab_repos.split(",")}
             )
 
     def set_views(self, views: any) -> None:
