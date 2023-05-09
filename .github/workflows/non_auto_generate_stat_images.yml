@@ -74,6 +74,7 @@ jobs:
         MORE_REPOS: ${{ secrets.MORE_REPOS }}
         ONLY_INCLUDED: ${{ secrets.ONLY_INCLUDED }}
         EXCLUDED_COLLAB_REPOS: ${{ secrets.EXCLUDED_COLLAB_REPOS }}
+        MORE_COLLAB_REPOS: ${{ secrets.MORE_COLLAB_REPOS }}
 
     # Commits all changed files to the repository
     - name: Commit to the repo

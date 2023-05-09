@@ -31,6 +31,7 @@ MORE_COLLABS = getenv("MORE_COLLABS")  # or enter: "<int>"
 MORE_REPOS = getenv("MORE_REPOS")  # or enter: "[owner/repo],...,[owner/repo]"
 ONLY_INCLUDED = getenv("ONLY_INCLUDED")  # or enter: "[owner/repo],..."
 EXCLUDED_COLLAB_REPOS = getenv("EXCLUDED_COLLAB_REPOS")  # or enter: "[owner/repo],..."
+MORE_COLLAB_REPOS = getenv("MORE_COLLAB_REPOS")  # or enter: "[owner/repo],..."
 
 
 async def main() -> None:
@@ -61,7 +62,8 @@ async def main() -> None:
                 more_collaborators=MORE_COLLABS,
                 manually_added_repos=MORE_REPOS,
                 only_included_repos=ONLY_INCLUDED,
-                exclude_collab_repos=EXCLUDED_COLLAB_REPOS),
+                exclude_collab_repos=EXCLUDED_COLLAB_REPOS,
+                more_collab_repos=MORE_COLLAB_REPOS),
             session=session)
         print(await stats.to_str())
 
