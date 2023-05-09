@@ -32,7 +32,8 @@ class EnvironmentVariables:
                  more_collaborators: Optional[str] = getenv("MORE_COLLABS"),
                  manually_added_repos: Optional[str] = getenv("MORE_REPOS"),
                  only_included_repos: Optional[str] = getenv("ONLY_INCLUDED"),
-                 exclude_collab_repos: Optional[str] = getenv("EXCLUDED_COLLAB_REPOS")):
+                 exclude_collab_repos: Optional[str] = getenv("EXCLUDED_COLLAB_REPOS"),
+                 more_collab_repos: Optional[str] = getenv("MORE_COLLAB_REPOS")):
         self.__db = GitRepoStatsDB()
 
         self.username = username
@@ -146,6 +147,13 @@ class EnvironmentVariables:
         else:
             self.exclude_collab_repos = (
                 {x.strip() for x in exclude_collab_repos.split(",")}
+            )
+
+        if more_collab_repos is None:
+            self.more_collab_repos = set()
+        else:
+            self.more_collab_repos = (
+                {x.strip() for x in more_collab_repos.split(",")}
             )
 
     def set_views(self, views: any) -> None:

@@ -70,16 +70,21 @@ class GenerateImages:
             output = f.read()
 
         name = await self.__stats.name
-        name += "'" if name[-1] == "s" else "'s"
-        if len(name) > MAX_NAME_LEN:
+        if len(name + ("'" if name[-1].lower() == "s" else "'s")) > MAX_NAME_LEN:
             names = name.split(' ')
-            if len(names) == 1:
-                name = names[0]
-            elif len(names[0][0] + '. ' + names[-1]) > MAX_NAME_LEN:
-                name = names[0] + "'" if names[0][-1] == "s" else "'s"
+            if len(names) == 1 or len(names[0][0] + '. ' + names[-1] +
+                                      ("'" if names[-1][-1].lower() == "s" else "'s")) > MAX_NAME_LEN:
+                if self.__stats.environment_vars.username + \
+                       ("'" if self.__stats.environment_vars.username[-1].lower() == "s" else "'s") > MAX_NAME_LEN:
+                    name = self.__stats.environment_vars.username + \
+                           ("'" if self.__stats.environment_vars.username[-1].lower() == "s" else "'s")
+                else:
+                    name = ' '.join([name[0] + '.' for name in names])
+                    name = name.strip()[:min(len(name), MAX_NAME_LEN - 2)] + "'s"
             else:
-                name = names[0][0] + '. ' + names[-1]
-            name = name if len(name) <= MAX_NAME_LEN else name[:MAX_NAME_LEN-2] + '..'
+                name = names[0][0] + '. ' + names[-1] + ("'" if names[-1][-1].lower() == "s" else "'s")
+        else:
+            name += "'" if name[-1].lower() == "s" else "'s"
         output = sub("{{ name }}",
                      name,
                      output)

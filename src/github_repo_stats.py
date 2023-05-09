@@ -40,11 +40,13 @@ class GitHubRepoStats(object):
         self._avg_percent: Optional[str] = None
         self._views: Optional[int] = None
         self._collaborators: Optional[int] = None
+        self._collaborator_set: Optional[Set[str]] = None
         self._contributors: Optional[Set[str]] = None
         self._views_from_date: Optional[str] = None
         self._pull_requests: Optional[int] = None
         self._issues: Optional[int] = None
         self._empty_repos: Optional[Set[str]] = None
+        self._collab_repos: Optional[Set[str]] = None
 
     async def to_str(self) -> str:
         """
@@ -368,6 +370,9 @@ class GitHubRepoStats(object):
         """
         if self._users_lines_changed is not None:
             return self._users_lines_changed
+        _, ghosted_collab_repos = await self.raw_collaborators()
+        slave_status_repos = self.environment_vars.more_collab_repos
+
         contributor_set = set()
         repo_total_changes_arr = []
         author_contribution_percentages = []
@@ -404,9 +409,9 @@ class GitHubRepoStats(object):
             author_total_additions += author_additions
             author_total_deletions += author_deletions
 
-            # calculate average author's contributions to each repository with more than one contributor
-            if repo not in self.environment_vars.exclude_collab_repos and \
-                    (author_additions + author_deletions) > 0 and other_authors_total_changes > 0:
+            # calculate average author's contributions to each repository with more than one contributor (or should be)
+            if repo not in self.environment_vars.exclude_collab_repos and (author_additions + author_deletions) > 0 \
+                    and (other_authors_total_changes > 0 or repo in ghosted_collab_repos | slave_status_repos):
                 repo_total_changes = other_authors_total_changes + author_additions + author_deletions
                 author_contribution_percentages.append((author_additions + author_deletions) / repo_total_changes)
                 repo_total_changes_arr.append(repo_total_changes)
@@ -484,6 +489,24 @@ class GitHubRepoStats(object):
         assert self._views_from_date is not None
         return self._views_from_date
 
+    async def raw_collaborators(self) -> (Set, Set):
+        if self._collaborator_set is not None and self._collab_repos is not None:
+            return self._collaborator_set, self._collab_repos
+
+        self._collaborator_set = set()
+        self._collab_repos = set()
+
+        for repo in await self.repos:
+            r = await self.queries\
+                .query_rest(f"/repos/{repo}/collaborators")
+
+            for obj in r:
+                if isinstance(obj, dict):
+                    self._collaborator_set.add(obj.get("login"))
+                    self._collab_repos.add(repo)
+
+        return self._collaborator_set, self._collab_repos
+
     @property
     async def collaborators(self) -> int:
         """
@@ -492,16 +515,7 @@ class GitHubRepoStats(object):
         if self._collaborators is not None:
             return self._collaborators
 
-        collaborator_set = set()
-
-        for repo in await self.repos:
-            r = await self.queries\
-                .query_rest(f"/repos/{repo}/collaborators")
-
-            for obj in r:
-                if isinstance(obj, dict):
-                    collaborator_set.add(obj.get("login"))
-
+        collaborator_set, _ = await self.raw_collaborators()
         collaborators = max(0, len(collaborator_set.union(await self.contributors)) - 1)
         self._collaborators = self.environment_vars.more_collaborators + collaborators
         return self._collaborators

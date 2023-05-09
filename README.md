@@ -173,18 +173,29 @@ Generate daily updated visualizations of user and repository statistics from the
   * example:
     * `4`
 * ### Optional Secret *Name*: `EXCLUDED_COLLAB_REPOS`
-  For excluding collaborative repositories from being included in the average contribution statistics
+  For excluding collaborative repositories from being included in the average contribution statistics calculations
     - for example, such as for when 
-      - contributions are included in a collaborative repo, but it is not one of your projects
-      - someone deletes and re-adds the entire codebase a few times
-      - your performance is not fairly represented
-      - ninjas
+      - contributions are made to a collaborative repo, but it is not one of your projects (open-source typo fix, etc)
+      - someone deletes and re-adds the entire codebase a few times too many
+      - your or someone else's performance is not fairly represented - missing data bias 
+      - pirates, ninjas, etc.
 
   **Instructions**:
   * enter *Value* in the following format (separated by commas):
     * `[owner/repo],[owner/repo],...,[owner/repo]`
   * example:
-    * `jstrieb/github-stats,rahul-jha98/github-stats-transparent,idiotWu/stats`
+    * `tera_open_source/bit_typo_fix,peer_repo/no_git_co_author_credit,dude_collab/email_not_reg_on_github,mars/attacks`
+* ### Optional Secret *Name*: `MORE_COLLAB_REPOS`
+    For including collaborative repositories that are otherwise not included in the average contribution statistics calculations
+    - for example, such as when
+      - nobody even bothered to join the repository as a collaborator let alone contribute anything
+      - the repository is imported and because it is ghosted none of the collaborators are represented in the scraping
+
+  **Instructions**:
+  * enter *Value* in the following format (separated by commas):
+    * `[owner/repo],[owner/repo],...,[owner/repo]`
+  * example:
+    * `large_A+_collab_project/ghosted,larger_A++_project/slave_status,import_collabs/no_other_contributions_no_collabs`
 * ### Optional Secret *Name*: `STORE_REPO_VIEWS`
   Boolean for storing generated repository view statistic visualization data beyond the 14 day-limit GitHub API allows 
     - `true` by default
