@@ -184,18 +184,18 @@ Generate daily updated visualizations of user and repository statistics from the
   * enter *Value* in the following format (separated by commas):
     * `[owner/repo],[owner/repo],...,[owner/repo]`
   * example:
-    * `tera_open_source/bit_typo_fix,peer_repo/no_git_co_author_credit,dude_collab/email_not_reg_on_github,mars/attacks`
+    * `tera_open_source/bit_typo_fix,peer_repo/missing_or_no_git_co_author_credit,dude_collab/email_not_reg_on_github,mars/attacks`
 * ### Optional Secret *Name*: `MORE_COLLAB_REPOS`
     For including collaborative repositories that are otherwise not included in the average contribution statistics calculations
     - for example, such as when
       - nobody even bothered to join the repository as a collaborator let alone contribute anything
-      - the repository is imported and because it is ghosted none of the collaborators are represented in the scraping
+      - the repository is imported and because it is ghosted there are no other contributions and, thus, none of the other collaborators are represented in the scraping
 
   **Instructions**:
   * enter *Value* in the following format (separated by commas):
     * `[owner/repo],[owner/repo],...,[owner/repo]`
   * example:
-    * `large_A+_collab_project/ghosted,larger_A++_project/slave_status,import_collabs/no_other_contributions_no_collabs`
+    * `imported_ghosted/large_A+_collab_project,slave_trade/larger_A++_project`
 * ### Optional Secret *Name*: `STORE_REPO_VIEWS`
   Boolean for storing generated repository view statistic visualization data beyond the 14 day-limit GitHub API allows 
     - `true` by default
