@@ -184,7 +184,7 @@ Generate daily updated visualizations of user and repository statistics from the
   * enter *Value* in the following format (separated by commas):
     * `[owner/repo],[owner/repo],...,[owner/repo]`
   * example:
-    * `tera_open_source/bit_typo_fix,peer_repo/missing_or_no_git_co_author_credit,dude_collab/email_not_reg_on_github,mars/attacks`
+    * `tera_open_source/bit_typo_fix,peer_repo/missing_or_no_git_co_author_credit,dude_collab/email_not_reg_on_github,dog_ate/my_repo,mars/attacks`
 * ### Optional Secret *Name*: `MORE_COLLAB_REPOS`
     For including collaborative repositories that are otherwise not included in the average contribution statistics calculations
     - for example, such as when
