@@ -6,6 +6,8 @@ Generate daily updated visualizations of user and repository statistics from the
 
 [![GitStats Overview](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/overview.svg)![GitStats Languages](https://raw.githubusercontent.com/R055A/GitStats/actions_branch/generated_images/languages.svg)](https://github.com/R055A/GitStats)
 
+> _Note: my '**Avg collaborative contributions**' stats is customized to only consider collaborative uni project repos_
+
 # :rocket: Instructions
 
 <details>
