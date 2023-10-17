@@ -37,6 +37,8 @@ def add_metric_unit(num):
     metric_units = ['K', 'M', 'B', 'T']
     metric_units_index = -1
 
+    num = int(num.replace(',', ''))
+
     if num > 9999:
         while num > 999:
             num /= 1000
@@ -121,9 +123,9 @@ class GenerateImages:
                      output)
 
         forks = f"{await self.__stats.forks:,}"
-        forks = forks if len(str(forks)) < TXT_SPACER_MAX_LEN else add_metric_unit(int(forks))
+        forks = forks if len(str(forks)) < TXT_SPACER_MAX_LEN else add_metric_unit(forks)
         stars = f"{await self.__stats.stargazers:,}"
-        stars = stars if len(str(stars)) < TXT_SPACER_MAX_LEN else add_metric_unit(int(stars))
+        stars = stars if len(str(stars)) < TXT_SPACER_MAX_LEN else add_metric_unit(stars)
         forks_and_stars = \
             forks + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(forks)) + 1) + '|   ' + stars
         output = sub("{{ forks_and_stars }}",
@@ -163,9 +165,9 @@ class GenerateImages:
 
         pull_requests = f"{await self.__stats.pull_requests:,}"
         pull_requests = pull_requests if len(str(pull_requests)) < TXT_SPACER_MAX_LEN \
-            else add_metric_unit(int(pull_requests))
+            else add_metric_unit(pull_requests)
         issues = f"{await self.__stats.issues:,}"
-        issues = stars if len(str(issues)) < TXT_SPACER_MAX_LEN else add_metric_unit(int(issues))
+        issues = stars if len(str(issues)) < TXT_SPACER_MAX_LEN else add_metric_unit(issues)
         pull_requests_and_issues = \
             pull_requests + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1) + '|   ' + issues
         output = sub("{{ pull_requests_and_issues }}",
