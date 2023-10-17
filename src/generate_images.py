@@ -28,6 +28,23 @@ def generate_output_folder() -> None:
     if not isdir(OUTPUT_DIR):
         mkdir(OUTPUT_DIR)
 
+
+def add_metric_unit(num):
+    """
+    Add metric units to large numbers to reduce length of string
+    Example: 12,456 to 12.46K
+    """
+    metric_units = ['K', 'M', 'B', 'T']
+    metric_units_index = -1
+
+    if num > 9999:
+        while num > 999:
+            num /= 1000
+            metric_units_index += 1
+        return str(num)[:TXT_SPACER_MAX_LEN - 2] + metric_units[metric_units_index]
+    return str(num)
+
+
 ###############################################################################
 # GenerateImages class
 ###############################################################################
@@ -104,7 +121,9 @@ class GenerateImages:
                      output)
 
         forks = f"{await self.__stats.forks:,}"
+        forks = forks if len(str(forks)) < TXT_SPACER_MAX_LEN else add_metric_unit(int(forks))
         stars = f"{await self.__stats.stargazers:,}"
+        stars = stars if len(str(stars)) < TXT_SPACER_MAX_LEN else add_metric_unit(int(stars))
         forks_and_stars = \
             forks + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(forks)) + 1) + '|   ' + stars
         output = sub("{{ forks_and_stars }}",
@@ -143,7 +162,10 @@ class GenerateImages:
                      output)
 
         pull_requests = f"{await self.__stats.pull_requests:,}"
+        pull_requests = pull_requests if len(str(pull_requests)) < TXT_SPACER_MAX_LEN \
+            else add_metric_unit(int(pull_requests))
         issues = f"{await self.__stats.issues:,}"
+        issues = stars if len(str(issues)) < TXT_SPACER_MAX_LEN else add_metric_unit(int(issues))
         pull_requests_and_issues = \
             pull_requests + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1) + '|   ' + issues
         output = sub("{{ pull_requests_and_issues }}",
