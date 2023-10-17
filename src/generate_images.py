@@ -167,7 +167,7 @@ class GenerateImages:
         pull_requests = pull_requests if len(str(pull_requests)) < TXT_SPACER_MAX_LEN \
             else add_metric_unit(pull_requests)
         issues = f"{await self.__stats.issues:,}"
-        issues = stars if len(str(issues)) < TXT_SPACER_MAX_LEN else add_metric_unit(issues)
+        issues = issues if len(str(issues)) < TXT_SPACER_MAX_LEN else add_metric_unit(issues)
         pull_requests_and_issues = \
             pull_requests + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1) + '|   ' + issues
         output = sub("{{ pull_requests_and_issues }}",
