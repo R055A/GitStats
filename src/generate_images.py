@@ -148,7 +148,9 @@ class GenerateImages:
                      avg_contribution_percent,
                      output)
 
-        repos = f"{len(await self.__stats.repos):,}"
+        num_repos = len(await self.__stats.repos)
+        num_owned_repos = len(await self.__stats.owned_repos)
+        repos = f"{num_repos:,} [{'%g' % round(num_owned_repos / num_repos * 100, 1)}%]"
         output = sub("{{ repos }}",
                      repos,
                      output)
