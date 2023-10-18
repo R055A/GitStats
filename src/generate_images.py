@@ -29,9 +29,9 @@ def generate_output_folder() -> None:
         mkdir(OUTPUT_DIR)
 
 
-def add_metric_unit(num):
+def add_unit(num):
     """
-    Add metric units to large numbers to reduce length of string
+    Add units to large numbers to reduce length of string
     Example: 12,456 to 12.46K
     """
     metric_units = ['K', 'M', 'B', 'T']
@@ -39,8 +39,8 @@ def add_metric_unit(num):
 
     num = int(num.replace(',', ''))
 
-    if num > 9999:
-        while num > 999:
+    if num >= 10000:
+        while num >= 1000:
             num /= 1000
             metric_units_index += 1
         return str(num)[:TXT_SPACER_MAX_LEN - 2] + metric_units[metric_units_index]
@@ -123,9 +123,9 @@ class GenerateImages:
                      output)
 
         forks = f"{await self.__stats.forks:,}"
-        forks = forks if len(str(forks)) < TXT_SPACER_MAX_LEN else add_metric_unit(forks)
+        forks = forks if len(str(forks)) < TXT_SPACER_MAX_LEN else add_unit(forks)
         stars = f"{await self.__stats.stargazers:,}"
-        stars = stars if len(str(stars)) < TXT_SPACER_MAX_LEN else add_metric_unit(stars)
+        stars = stars if len(str(stars)) < TXT_SPACER_MAX_LEN else add_unit(stars)
         forks_and_stars = \
             forks + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(forks)) + 1) + '|   ' + stars
         output = sub("{{ forks_and_stars }}",
@@ -150,7 +150,8 @@ class GenerateImages:
 
         num_repos = len(await self.__stats.repos)
         num_owned_repos = len(await self.__stats.owned_repos)
-        repos = f"{num_repos:,} [{'%g' % round(num_owned_repos / num_repos * 100, 1)}%]"
+        repos = num_repos if len(str(num_repos)) < TXT_SPACER_MAX_LEN else add_unit(num_repos)
+        repos = f"{repos:,} [{'%g' % round(num_owned_repos / num_repos * 100, 1)}%]"
         output = sub("{{ repos }}",
                      repos,
                      output)
@@ -166,10 +167,9 @@ class GenerateImages:
                      output)
 
         pull_requests = f"{await self.__stats.pull_requests:,}"
-        pull_requests = pull_requests if len(str(pull_requests)) < TXT_SPACER_MAX_LEN \
-            else add_metric_unit(pull_requests)
+        pull_requests = pull_requests if len(str(pull_requests)) < TXT_SPACER_MAX_LEN else add_unit(pull_requests)
         issues = f"{await self.__stats.issues:,}"
-        issues = issues if len(str(issues)) < TXT_SPACER_MAX_LEN else add_metric_unit(issues)
+        issues = issues if len(str(issues)) < TXT_SPACER_MAX_LEN else add_unit(issues)
         pull_requests_and_issues = \
             pull_requests + ' ' * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1) + '|   ' + issues
         output = sub("{{ pull_requests_and_issues }}",
