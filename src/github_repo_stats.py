@@ -41,6 +41,7 @@ class GitHubRepoStats(object):
         self._owned_repos: Optional[Set[str]] = None
         self._users_lines_changed: Optional[Tuple[int, int]] = None
         self._avg_percent: Optional[str] = None
+        self._weighted_avg_percent: Optional[str] = None
         self._views: Optional[int] = None
         self._collaborators: Optional[int] = None
         self._collaborator_set: Optional[Set[str]] = None
@@ -62,6 +63,7 @@ class GitHubRepoStats(object):
 
         users_lines_changed = await self.lines_changed
         avg_percent = await self.avg_contribution_percent
+        weighted_avg_percent = await self.weighted_avg_contribution_percent
         contributors = max(len(await self.contributors) - 1, 0)
 
         return f"""GitHub Repository Statistics:
@@ -75,6 +77,7 @@ class GitHubRepoStats(object):
         Lines of code deleted: {users_lines_changed[1]:,}
         Total lines of code changed: {sum(users_lines_changed):,}
         Avg. % of contributions (per collab repo): {avg_percent}
+        Weighted avg. % of contributions (per collab repo): {weighted_avg_percent}
         Project page views: {await self.views:,}
         Project page views from date: {await self.views_from_date}
         Project repository collaborators: {await self.collaborators:,}
@@ -150,17 +153,17 @@ class GitHubRepoStats(object):
                     .get("login", self._NO_NAME)
                 )
 
+            owned_repos = (
+                raw_results.get("data", {}).get("viewer", {}).get("repositories", {})
+            )
+            repos = owned_repos.get("nodes", [])
+
             contrib_repos = (
                 raw_results.get("data", {})
                 .get("viewer", {})
                 .get("repositoriesContributedTo", {})
             )
 
-            owned_repos = (
-                raw_results.get("data", {}).get("viewer", {}).get("repositories", {})
-            )
-
-            repos = owned_repos.get("nodes", [])
             if not self.environment_vars.exclude_contrib_repos:
                 repos += contrib_repos.get("nodes", [])
 
@@ -405,12 +408,14 @@ class GitHubRepoStats(object):
         contributor_set = set()
         repo_total_changes_arr = []
         author_contribution_percentages = []
+        weighted_author_contribution_percentages = []
         author_total_additions = 0
         author_total_deletions = 0
 
         for repo in await self.repos:
             if repo in self._empty_repos:
                 continue
+            num_repo_collabs = 1
             other_authors_total_changes = 0
             author_additions = 0
             author_deletions = 0
@@ -433,6 +438,7 @@ class GitHubRepoStats(object):
                     for week in author_obj.get("weeks", []):
                         other_authors_total_changes += week.get("a", 0)
                         other_authors_total_changes += week.get("d", 0)
+                        num_repo_collabs += 1
                 else:
                     for week in author_obj.get("weeks", []):
                         author_additions += week.get("a", 0)
@@ -458,10 +464,21 @@ class GitHubRepoStats(object):
                     (author_additions + author_deletions) / repo_total_changes
                 )
                 repo_total_changes_arr.append(repo_total_changes)
+
+                weighted_author_contribution_percentages.append(
+                    author_contribution_percentages[-1]
+                    * (1 - 1 / num_repo_collabs if num_repo_collabs > 1 else 1)
+                )
+
         if sum(author_contribution_percentages) > 0:
             self._avg_percent = f"{(sum(author_contribution_percentages) / len(repo_total_changes_arr) * 100):0.2f}%"
+
+            weighted_avg_percent = sum(
+                weighted_author_contribution_percentages
+            ) / len(repo_total_changes_arr)
+            self._weighted_avg_percent = f"{weighted_avg_percent * 100:0.2f}%"
         else:
-            self._avg_percent = "N/A"
+            self._weighted_avg_percent = self._avg_percent = "N/A"
 
         self._contributors = contributor_set
 
@@ -478,6 +495,17 @@ class GitHubRepoStats(object):
         await self.lines_changed
         assert self._avg_percent is not None
         return self._avg_percent
+
+    @property
+    async def weighted_avg_contribution_percent(self) -> str:
+        """
+        :return: str representing the weighted avg percent of user's repo contributions
+        """
+        if self._weighted_avg_percent is not None:
+            return self._weighted_avg_percent
+        await self.lines_changed
+        assert self._weighted_avg_percent is not None
+        return self._weighted_avg_percent
 
     @property
     async def views(self) -> int:
