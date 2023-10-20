@@ -1,3 +1,1 @@
-__all__ = [
-    "github_repo_stats_test"
-]
+__all__ = ["git_stats_test"]

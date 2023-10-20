@@ -150,7 +150,7 @@
       <foreignObject x="21" y="17" width="428.4" height="217.8">
         <div xmlns="http://www.w3.org/1999/xhtml" class="ellipsis">
 
-          <h2>{{ lang_count }} Implemented Languages (by Total File Size %):</h2>
+          <h2>{{ lang_count }} Implemented Languages (by Repo File Size %):</h2>
 
           <div>
             <span class="progress">
