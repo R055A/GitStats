@@ -17,10 +17,11 @@ class GitHubRepoStats(object):
     Retrieve and store statistics about GitHub usage.
     """
 
-    __DATE_FORMAT = "%Y-%m-%d"
-    __EXCLUDED_USER_NAMES = [
+    _DATE_FORMAT = "%Y-%m-%d"
+    _EXCLUDED_USER_NAMES = [
         "dependabot[bot]"
     ]  # exclude bot data from being included in statistical calculations
+    _NO_NAME = "No Name"
 
     def __init__(self, environment_vars: EnvironmentVariables, session: ClientSession):
         self.environment_vars: EnvironmentVariables = environment_vars
@@ -146,7 +147,7 @@ class GitHubRepoStats(object):
                 self._name = (
                     raw_results.get("data", {})
                     .get("viewer", {})
-                    .get("login", "No Name")
+                    .get("login", self._NO_NAME)
                 )
 
             contrib_repos = (
@@ -163,39 +164,7 @@ class GitHubRepoStats(object):
             if not self.environment_vars.exclude_contrib_repos:
                 repos += contrib_repos.get("nodes", [])
 
-            for repo in repos:
-                if not repo or await self.is_repo_type_excluded(repo):
-                    continue
-
-                name = repo.get("nameWithOwner")
-                if await self.is_repo_name_invalid(name):
-                    continue
-                self._repos.add(name)
-
-                self._stargazers += repo.get("stargazers").get("totalCount", 0)
-                self._forks += repo.get("forkCount", 0)
-
-                if repo.get("isEmpty"):
-                    self._empty_repos.add(name)
-                    continue
-
-                for lang in repo.get("languages", {}).get("edges", []):
-                    name = lang.get("node", {}).get("name", "Other")
-                    languages = await self.languages
-
-                    if name in self.environment_vars.exclude_langs:
-                        self._excluded_languages.add(name)
-                        continue
-
-                    if name in languages:
-                        languages[name]["size"] += lang.get("size", 0)
-                        languages[name]["occurrences"] += 1
-                    else:
-                        languages[name] = {
-                            "size": lang.get("size", 0),
-                            "occurrences": 1,
-                            "color": lang.get("node", {}).get("color"),
-                        }
+            await self.repo_stats(repos)
 
             is_cur_owned = owned_repos.get("pageInfo", {}).get("hasNextPage", False)
             is_cur_contrib = contrib_repos.get("pageInfo", {}).get("hasNextPage", False)
@@ -210,49 +179,91 @@ class GitHubRepoStats(object):
             else:
                 break
 
-        if not self.environment_vars.exclude_contrib_repos:
-            env_repos = self.environment_vars.manually_added_repos
-            lang_cols = self.queries.get_language_colors()
+        await self.manually_added_repo_stats()
 
-            for repo in env_repos:
-                if await self.is_repo_name_invalid(repo):
-                    continue
-                self._repos.add(repo)
-
-                repo_stats = await self.queries.query_rest(f"/repos/{repo}")
-                if await self.is_repo_type_excluded(repo_stats):
-                    continue
-
-                self._stargazers += repo_stats.get("stargazers_count", 0)
-                self._forks += repo_stats.get("forks", 0)
-
-                if repo_stats.get("size") == 0:
-                    self._empty_repos.add(repo)
-                    continue
-
-                # TODO: Improve languages to scale by number of contributions to specific filetypes
-                if repo_stats.get("language"):
-                    langs = await self.queries.query_rest(f"/repos/{repo}/languages")
-
-                    for lang, size in langs.items():
-                        languages = await self.languages
-
-                        if lang in self.environment_vars.exclude_langs:
-                            continue
-
-                        if lang in languages:
-                            languages[lang]["size"] += size
-                            languages[lang]["occurrences"] += 1
-                        else:
-                            languages[lang] = {
-                                "size": size,
-                                "occurrences": 1,
-                                "color": lang_cols.get(lang).get("color"),
-                            }
-
+        # TODO: Improve languages to scale by number of contributions to specific filetypes
         langs_total = sum([v.get("size", 0) for v in self._languages.values()])
         for k, v in self._languages.items():
             v["prop"] = 100 * (v.get("size", 0) / langs_total)
+
+    async def repo_stats(self, repos) -> None:
+        """
+        Gathers statistical data from fetches for repos user is associated with on GitHub
+        """
+        for repo in repos:
+            if not repo or await self.is_repo_type_excluded(repo):
+                continue
+
+            name = repo.get("nameWithOwner")
+            if await self.is_repo_name_invalid(name):
+                continue
+            self._repos.add(name)
+
+            self._stargazers += repo.get("stargazers").get("totalCount", 0)
+            self._forks += repo.get("forkCount", 0)
+
+            if repo.get("isEmpty"):
+                self._empty_repos.add(name)
+                continue
+
+            for lang in repo.get("languages", {}).get("edges", []):
+                name = lang.get("node", {}).get("name", "Other")
+                languages = await self.languages
+
+                if name in self.environment_vars.exclude_langs:
+                    self._excluded_languages.add(name)
+                    continue
+
+                if name in languages:
+                    languages[name]["size"] += lang.get("size", 0)
+                    languages[name]["occurrences"] += 1
+                else:
+                    languages[name] = {
+                        "size": lang.get("size", 0),
+                        "occurrences": 1,
+                        "color": lang.get("node", {}).get("color"),
+                    }
+
+    async def manually_added_repo_stats(self) -> None:
+        """
+        Gathers statistical data from fetches for manually added repos otherwise not fetched by user association
+        """
+        lang_cols = self.queries.get_language_colors()
+
+        for repo in self.environment_vars.manually_added_repos:
+            if await self.is_repo_name_invalid(repo):
+                continue
+            self._repos.add(repo)
+
+            repo_stats = await self.queries.query_rest(f"/repos/{repo}")
+            if await self.is_repo_type_excluded(repo_stats):
+                continue
+
+            self._stargazers += repo_stats.get("stargazers_count", 0)
+            self._forks += repo_stats.get("forks", 0)
+
+            if repo_stats.get("size") == 0:
+                self._empty_repos.add(repo)
+                continue
+
+            if repo_stats.get("language"):
+                langs = await self.queries.query_rest(f"/repos/{repo}/languages")
+
+                for lang, size in langs.items():
+                    languages = await self.languages
+
+                    if lang in self.environment_vars.exclude_langs:
+                        continue
+
+                    if lang in languages:
+                        languages[lang]["size"] += size
+                        languages[lang]["occurrences"] += 1
+                    else:
+                        languages[lang] = {
+                            "size": size,
+                            "occurrences": 1,
+                            "color": lang_cols.get(lang).get("color"),
+                        }
 
     @property
     async def name(self) -> str:
@@ -388,7 +399,7 @@ class GitHubRepoStats(object):
         """
         if self._users_lines_changed is not None:
             return self._users_lines_changed
-        _, ghosted_collab_repos = await self.raw_collaborators()
+        _, collab_repos = await self.raw_collaborators()
         slave_status_repos = self.environment_vars.more_collab_repos
 
         contributor_set = set()
@@ -417,7 +428,7 @@ class GitHubRepoStats(object):
 
                 if (
                     author != self.environment_vars.username
-                    and author not in self.__EXCLUDED_USER_NAMES
+                    and author not in self._EXCLUDED_USER_NAMES
                 ):
                     for week in author_obj.get("weeks", []):
                         other_authors_total_changes += week.get("a", 0)
@@ -429,13 +440,15 @@ class GitHubRepoStats(object):
             author_total_additions += author_additions
             author_total_deletions += author_deletions
 
-            # calculate average author's contributions to each repository with more than one contributor (or should be)
+            # calculate average author's contributions to each repository with at least one other collaborator
             if (
                 repo not in self.environment_vars.exclude_collab_repos
                 and (author_additions + author_deletions) > 0
                 and (
                     other_authors_total_changes > 0
-                    or repo in ghosted_collab_repos | slave_status_repos
+                    or repo
+                    in collab_repos
+                    | slave_status_repos  # either collaborators are ghosting or no show in repo
                 )
             ):
                 repo_total_changes = (
@@ -477,8 +490,8 @@ class GitHubRepoStats(object):
             return self._views
 
         last_viewed = self.environment_vars.repo_last_viewed
-        today = date.today().strftime(self.__DATE_FORMAT)
-        yesterday = (date.today() - timedelta(1)).strftime(self.__DATE_FORMAT)
+        today = date.today().strftime(self._DATE_FORMAT)
+        yesterday = (date.today() - timedelta(1)).strftime(self._DATE_FORMAT)
         dates = {last_viewed, yesterday}
 
         today_view_count = 0
@@ -530,11 +543,15 @@ class GitHubRepoStats(object):
 
         for repo in await self.repos:
             r = await self.queries.query_rest(f"/repos/{repo}/collaborators")
+            collab_count = 0
 
             for obj in r:
                 if isinstance(obj, dict):
+                    collab_count += 1
                     self._collaborator_set.add(obj.get("login"))
-                    self._collab_repos.add(repo)
+
+                    if collab_count > 1:
+                        self._collab_repos.add(repo)
 
         return self._collaborator_set, self._collab_repos
 
