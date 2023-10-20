@@ -562,119 +562,38 @@ class GitHubRepoStats(object):
         assert self._contributors is not None
         return self._contributors
 
-    async def fetch_repo_pull_request_stats(self, repo: str) -> int:
-        """
-        :param repo: owner/repo name
-        :return: count of pull requests user is either creating, reviewing, merging, commenting, committing to...
-        """
-        base_url = f"/repos/{repo}/pulls?state=all"
-        qualifiers = [
-            f"creator={self.environment_vars.username}",
-            f"reviewer={self.environment_vars.username}",
-            f"merged_by={self.environment_vars.username}",
-            f"assignee={self.environment_vars.username}",
-            f"mentioned={self.environment_vars.username}",
-            f"commenter={self.environment_vars.username}",
-            f"involved={self.environment_vars.username}",
-        ]
-        pull_requests = set()
-
-        for qualifier in qualifiers:
-            r = await self.queries.query_rest(base_url + "&" + qualifier)
-            for pr_data in r:
-                pull_requests.add(pr_data["url"])
-
-        for pr in await self.queries.query_rest(base_url):
-            commits = await self.queries.query_rest(
-                f"/repos/{repo}/pulls/{pr.get('number')}/commits"
-            )
-            for commit in commits:
-                if (
-                    commit
-                    and commit.get("author", {})
-                    and commit.get("author", {}).get("login")
-                    == self.environment_vars.username
-                ):
-                    pull_requests.add(pr["url"])
-
-            comments = await self.queries.query_rest(
-                f"/repos/{repo}/pulls/{pr.get('number')}/comments"
-            )
-            for comment in comments:
-                if (
-                    comment
-                    and comment.get("user", {})
-                    and comment.get("user", {}).get("login")
-                    == self.environment_vars.username
-                ):
-                    pull_requests.add(pr["url"])
-
-        return len(pull_requests)
-
     @property
     async def pull_requests(self) -> int:
         """
-        :return: count of (user) pull requests in repositories
+        :return: count of pull requests in repos user has either created, reviewed, commented, been assigned...
         """
         if self._pull_requests is not None:
             return self._pull_requests
 
-        self._pull_requests = 0
+        pull_requests = set()
 
         for repo in await self.repos:
-            self._pull_requests += await self.fetch_repo_pull_request_stats(repo)
+            end_point = f"/repos/{repo}/pulls?state=all&involved={self.environment_vars.username}"
+            for pr_data in await self.queries.query_rest(end_point):
+                pull_requests.add(pr_data["url"]) if "url" in pr_data.keys() else None
+
+        self._pull_requests = len(pull_requests)
         return self._pull_requests
-
-    async def fetch_repo_issue_stats(self, repo: str) -> int:
-        """
-        :param repo: owner/repo name
-        :return: count of issues user has either created, reacted, participated in, or associated a PR to...
-        """
-        base_url = f"/repos/{repo}/issues?state=all"
-        qualifiers = [
-            f"creator={self.environment_vars.username}",
-            f"assignee={self.environment_vars.username}",
-            f"mentioned={self.environment_vars.username}",
-            f"commenter={self.environment_vars.username}",
-            f"involved={self.environment_vars.username}",
-        ]
-        issues = set()
-
-        for qualifier in qualifiers:
-            r = await self.queries.query_rest(base_url + "&" + qualifier)
-            if r:
-                for issue_data in r:
-                    issues.add(issue_data["url"])
-
-        r = await self.queries.query_rest(base_url + "&sort=reactions")
-        for issue in r:
-            for reaction in issue.get("reactions", {}).get("nodes", []):
-                if (
-                    reaction.get("user", {}).get("login")
-                    == self.environment_vars.username
-                ):
-                    issues.add(issue["url"])
-                    break
-
-        r = await self.queries.query_rest(
-            f"/repos/{repo}/pulls?state=all&creator={self.environment_vars.username}"
-        )
-        for pr in r:
-            if pr.get("issue_url"):
-                issues.add(pr.get("issue_url"))
-
-        return len(issues)
 
     @property
     async def issues(self) -> int:
         """
-        :return: count of (user) issues in repositories
+        :return: count of issues in repos user has either created, reacted to, commented, been assigned...
         """
         if self._issues is not None:
             return self._issues
 
-        self._issues = 0
+        issues = set()
 
         for repo in await self.repos:
-            self._issues += await self.fetch_repo_issue_stats(repo)
+            end_point = f"/repos/{repo}/issues?state=all&involved={self.environment_vars.username}"
+            for issue_data in await self.queries.query_rest(end_point):
+                issues.add(issue_data["url"]) if "url" in issue_data.keys() else None
+
+        self._issues = len(issues)
         return self._issues
