@@ -473,9 +473,9 @@ class GitHubRepoStats(object):
         if sum(author_contribution_percentages) > 0:
             self._avg_percent = f"{(sum(author_contribution_percentages) / len(repo_total_changes_arr) * 100):0.2f}%"
 
-            weighted_avg_percent = sum(
-                weighted_author_contribution_percentages
-            ) / len(repo_total_changes_arr)
+            weighted_avg_percent = sum(weighted_author_contribution_percentages) / len(
+                repo_total_changes_arr
+            )
             self._weighted_avg_percent = f"{weighted_avg_percent * 100:0.2f}%"
         else:
             self._weighted_avg_percent = self._avg_percent = "N/A"

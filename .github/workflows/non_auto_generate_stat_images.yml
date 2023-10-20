@@ -28,7 +28,8 @@ jobs:
     steps:
 
     # Checks-out repository under $GITHUB_WORKSPACE, so the job can access it
-    - uses: actions/checkout@v3
+    - name: Check out code
+      uses: actions/checkout@v3
 
     # Run using Python 3.11 for consistency and aiohttp
     - name: Set up Python 3.11
