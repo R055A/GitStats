@@ -26,7 +26,6 @@ jobs:
 
     # Install Ruff
     - name: Install ruff
-      uses: chartboost/ruff-action@v1
       run: pip install --user ruff
 
     # Use Ruff to lint all files
