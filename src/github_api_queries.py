@@ -23,11 +23,13 @@ class GitHubApiQueries(object):
     __ASYNCIO_SLEEP_TIME = 2
     __DEFAULT_MAX_CONNECTIONS = 10
 
-    def __init__(self,
-                 username: str,
-                 access_token: str,
-                 session: ClientSession,
-                 max_connections: int = __DEFAULT_MAX_CONNECTIONS):
+    def __init__(
+        self,
+        username: str,
+        access_token: str,
+        session: ClientSession,
+        max_connections: int = __DEFAULT_MAX_CONNECTIONS,
+    ):
         self.username = username
         self.access_token = access_token
         self.session = session
@@ -70,9 +72,7 @@ class GitHubApiQueries(object):
                     return result
         return dict()
 
-    async def query_rest(self,
-                         path: str,
-                         params: Optional[Dict] = None) -> Dict:
+    async def query_rest(self, path: str, params: Optional[Dict] = None) -> Dict:
         """
         Make a request to the REST API
         :param path: API path to query
@@ -94,7 +94,7 @@ class GitHubApiQueries(object):
                     )
 
                 if r_async.status == 202:
-                    print(f"A path returned 202. Retrying...")
+                    print("A path returned 202. Retrying...")
                     await sleep(self.__ASYNCIO_SLEEP_TIME)
                     continue
 
@@ -114,7 +114,7 @@ class GitHubApiQueries(object):
                     )
 
                     if r_requests.status_code == 202:
-                        print(f"A path returned 202. Retrying...")
+                        print("A path returned 202. Retrying...")
                         await sleep(self.__ASYNCIO_SLEEP_TIME)
                         continue
                     elif r_requests.status_code == 200:
@@ -124,8 +124,9 @@ class GitHubApiQueries(object):
         return dict()
 
     @staticmethod
-    def repos_overview(contrib_cursor: Optional[str] = None,
-                       owned_cursor: Optional[str] = None) -> str:
+    def repos_overview(
+        contrib_cursor: Optional[str] = None, owned_cursor: Optional[str] = None
+    ) -> str:
         """
         :return: GraphQL queries with overview of user repositories
         """
@@ -265,5 +266,7 @@ class GitHubApiQueries(object):
 
     @staticmethod
     def get_language_colors():
-        url = get("https://raw.githubusercontent.com/ozh/github-colors/master/colors.json")
+        url = get(
+            "https://raw.githubusercontent.com/ozh/github-colors/master/colors.json"
+        )
         return loads(url.text)

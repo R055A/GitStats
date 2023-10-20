@@ -1,4 +1,1 @@
-__all__ = [
-    "src",
-    "git_stats_imgs"
-]
+__all__ = ["src", "test", "git_stats_imgs"]

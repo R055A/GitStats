@@ -63,8 +63,10 @@ async def main() -> None:
                 manually_added_repos=MORE_REPOS,
                 only_included_repos=ONLY_INCLUDED,
                 exclude_collab_repos=EXCLUDED_COLLAB_REPOS,
-                more_collab_repos=MORE_COLLAB_REPOS),
-            session=session)
+                more_collab_repos=MORE_COLLAB_REPOS,
+            ),
+            session=session,
+        )
         print(await stats.to_str())
 
 
