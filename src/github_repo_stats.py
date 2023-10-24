@@ -51,6 +51,7 @@ class GitHubRepoStats(object):
         self._issues: Optional[int] = None
         self._empty_repos: Optional[Set[str]] = None
         self._collab_repos: Optional[Set[str]] = None
+        self._is_fetch_rate_limit_exceeded: Optional[bool] = False
 
     async def to_str(self) -> str:
         """
@@ -617,12 +618,28 @@ class GitHubRepoStats(object):
 
         pull_requests = set()
 
-        for repo in await self.repos:
-            end_point = f"/repos/{repo}/pulls?state=all&involved={self.environment_vars.username}"
-            for pr_data in await self.queries.query_rest(end_point):
-                pull_requests.add(pr_data["url"]) if "url" in pr_data.keys() else None
+        if not self._is_fetch_rate_limit_exceeded:
+            for repo in await self.repos:
+                end_point = f"/repos/{repo}/pulls?state=all&involved={self.environment_vars.username}"
 
-        self._pull_requests = len(pull_requests)
+                for pr_data in await self.queries.query_rest(end_point):
+                    try:
+                        pull_requests.add(
+                            pr_data["url"]
+                        ) if "url" in pr_data.keys() else None
+                    except AttributeError:
+                        self._is_fetch_rate_limit_exceeded = True
+                        break
+
+                if self._is_fetch_rate_limit_exceeded:
+                    break
+
+        self._pull_requests = (
+            len(pull_requests)
+            if len(pull_requests) > self.environment_vars.pull_requests_count
+            else self.environment_vars.pull_requests_count
+        )
+        self.environment_vars.set_pull_requests(self._pull_requests)
         return self._pull_requests
 
     @property
@@ -635,10 +652,26 @@ class GitHubRepoStats(object):
 
         issues = set()
 
-        for repo in await self.repos:
-            end_point = f"/repos/{repo}/issues?state=all&involved={self.environment_vars.username}"
-            for issue_data in await self.queries.query_rest(end_point):
-                issues.add(issue_data["url"]) if "url" in issue_data.keys() else None
+        if not self._is_fetch_rate_limit_exceeded:
+            for repo in await self.repos:
+                end_point = f"/repos/{repo}/issues?state=all&involved={self.environment_vars.username}"
 
-        self._issues = len(issues)
+                for issue_data in await self.queries.query_rest(end_point):
+                    try:
+                        issues.add(
+                            issue_data["url"]
+                        ) if "url" in issue_data.keys() else None
+                    except AttributeError:
+                        self._is_fetch_rate_limit_exceeded = True
+                        break
+
+                if self._is_fetch_rate_limit_exceeded:
+                    break
+
+        self._issues = (
+            len(issues)
+            if len(issues) > self.environment_vars.issues_count
+            else self.environment_vars.issues_count
+        )
+        self.environment_vars.set_issues(self._issues)
         return self._issues

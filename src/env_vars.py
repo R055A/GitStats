@@ -153,6 +153,9 @@ class EnvironmentVariables:
         else:
             self.more_collab_repos = {x.strip() for x in more_collab_repos.split(",")}
 
+        self.pull_requests_count = self.__db.pull_requests
+        self.issues_count = self.__db.issues
+
     def set_views(self, views: any) -> None:
         self.repo_views += int(views)
         environ["REPO_VIEWS"] = str(self.repo_views)
@@ -167,3 +170,9 @@ class EnvironmentVariables:
         self.repo_first_viewed = new_first_viewed_date
         environ["FIRST_VIEWED"] = self.repo_first_viewed
         self.__db.set_views_from_date(self.repo_first_viewed)
+
+    def set_pull_requests(self, pull_requests_count: int) -> None:
+        self.__db.pull_requests = pull_requests_count
+
+    def set_issues(self, issues_count: int) -> None:
+        self.__db.issues = issues_count
