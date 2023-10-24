@@ -25,8 +25,8 @@ class GitRepoStatsDB:
         self.views = int(self.__db["views"]["count"])
         self.views_from_date = self.__db["views"]["from"]
         self.views_to_date = self.__db["views"]["to"]
-        self.pull_requests = int(self.__db["pull_requests"]["count"])
-        self.issues = int(self.__db["issues"]["count"])
+        self.pull_requests = int(self.__db["pull_requests"])
+        self.issues = int(self.__db["issues"])
 
     def __update_db(self) -> None:
         try:
@@ -52,9 +52,9 @@ class GitRepoStatsDB:
         self.__update_db()
 
     def set_pull_requests(self, pull_requests_count: int) -> None:
-        self.__db["pull_requests"]["count"] = str(pull_requests_count)
+        self.__db["pull_requests"] = str(pull_requests_count)
         self.__update_db()
 
     def set_issues(self, issues_count: int) -> None:
-        self.__db["issues"]["count"] = str(issues_count)
+        self.__db["issues"] = str(issues_count)
         self.__update_db()
