@@ -112,7 +112,7 @@
             <thead>
               <tr style="transform: translateX(0);">
                 <th colspan="2">
-                  Adam Ross' GitHub Statistics
+                  No Name's GitHub Statistics
                 </th>
               </tr>
             </thead>
@@ -126,7 +126,7 @@
                 <span>All-time GitHub contributions</span>
               </td>
               <td>
-                <span>3,062</span>
+                <span>3,051</span>
               </td>
             </tr>
 
@@ -138,7 +138,7 @@
                 <span>Lines of code changes</span>
               </td>
               <td>
-                <span>3,197,752</span>
+                <span>309,393</span>
               </td>
             </tr>
 
@@ -150,7 +150,7 @@
                 <span>Avg collaborative contributions</span>
               </td>
               <td>
-                <span>74.50%</span>
+                <span>44.78%</span>
               </td>
             </tr>
 
@@ -166,7 +166,7 @@
                 <span>Issues</span>
               </td>
               <td>
-                <span>1,263   |   1,311</span>
+                <span>519     |   519</span>
               </td>
             </tr>
 
@@ -178,7 +178,7 @@
                 <span>Repos contributed to [% owned]</span>
               </td>
               <td>
-                <span>162 [61.1%]</span>
+                <span>22 [0%]</span>
               </td>
             </tr>
 
@@ -202,7 +202,7 @@
                 <span>Repo collaborators</span>
               </td>
               <td>
-                <span>2,088</span>
+                <span>1,296</span>
               </td>
             </tr>
 
@@ -218,7 +218,7 @@
                 <span>Stars</span>
               </td>
               <td>
-                <span>421.1K  |   1.573M</span>
+                <span>325.7K  |   1.192M</span>
               </td>
             </tr>
 
