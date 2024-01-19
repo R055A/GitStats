@@ -112,7 +112,7 @@
             <thead>
               <tr style="transform: translateX(0);">
                 <th colspan="2">
-                  No Name's GitHub Statistics
+                  Adam Ross' GitHub Statistics
                 </th>
               </tr>
             </thead>
@@ -138,7 +138,7 @@
                 <span>Lines of code changes</span>
               </td>
               <td>
-                <span>309,393</span>
+                <span>3,199,827</span>
               </td>
             </tr>
 
@@ -150,7 +150,7 @@
                 <span>Avg collaborative contributions</span>
               </td>
               <td>
-                <span>44.78%</span>
+                <span>73.58%</span>
               </td>
             </tr>
 
@@ -166,7 +166,7 @@
                 <span>Issues</span>
               </td>
               <td>
-                <span>519     |   519</span>
+                <span>1,263   |   1,309</span>
               </td>
             </tr>
 
@@ -178,7 +178,7 @@
                 <span>Repos contributed to [% owned]</span>
               </td>
               <td>
-                <span>22 [0%]</span>
+                <span>163 [61.3%]</span>
               </td>
             </tr>
 
@@ -190,7 +190,7 @@
                 <span>Repo views (as of 2021-03-31)</span>
               </td>
               <td>
-                <span>54,910</span>
+                <span>54,913</span>
               </td>
             </tr>
 
@@ -202,7 +202,7 @@
                 <span>Repo collaborators</span>
               </td>
               <td>
-                <span>1,296</span>
+                <span>2,088</span>
               </td>
             </tr>
 
@@ -218,7 +218,7 @@
                 <span>Stars</span>
               </td>
               <td>
-                <span>325.7K  |   1.192M</span>
+                <span>421.3K  |   1.573M</span>
               </td>
             </tr>
 
