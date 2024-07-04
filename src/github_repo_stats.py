@@ -41,7 +41,6 @@ class GitHubRepoStats(object):
         self._owned_repos: Optional[Set[str]] = None
         self._users_lines_changed: Optional[Tuple[int, int]] = None
         self._avg_percent: Optional[str] = None
-        self._weighted_avg_percent: Optional[str] = None
         self._views: Optional[int] = None
         self._collaborators: Optional[int] = None
         self._collaborator_set: Optional[Set[str]] = None
@@ -64,21 +63,35 @@ class GitHubRepoStats(object):
 
         users_lines_changed = await self.lines_changed
         avg_percent = await self.avg_contribution_percent
-        weighted_avg_percent = await self.weighted_avg_contribution_percent
         contributors = max(len(await self.contributors) - 1, 0)
+
+        # return f"""GitHub Repository Statistics:
+        # Stargazers: {await self.stargazers:,}
+        # Forks: {await self.forks:,}
+        # Pull requests: {await self.pull_requests:,}
+        # Issues: {await self.issues:,}
+        # All-time contributions: {await self.total_contributions:,}
+        # Repositories with contributions: {len(await self.repos):,}
+        # Lines of code added: {users_lines_changed[0]:,}
+        # Lines of code deleted: {users_lines_changed[1]:,}
+        # Total lines of code changed: {sum(users_lines_changed):,}
+        # Avg. % of contributions (per collab repo): {avg_percent}
+        # Project page views: {await self.views:,}
+        # Project page views from date: {await self.views_from_date}
+        # Project repository collaborators: {await self.collaborators:,}
+        # Project repository contributors: {contributors:,}
+        # Total number of languages: {len(list(languages.keys()))} (+{len(await self.excluded_languages):,})
+        # Languages:\n\t\t\t- {formatted_languages}"""
 
         return f"""GitHub Repository Statistics:
         Stargazers: {await self.stargazers:,}
         Forks: {await self.forks:,}
-        Pull requests: {await self.pull_requests:,}
-        Issues: {await self.issues:,}
         All-time contributions: {await self.total_contributions:,}
         Repositories with contributions: {len(await self.repos):,}
         Lines of code added: {users_lines_changed[0]:,}
         Lines of code deleted: {users_lines_changed[1]:,}
         Total lines of code changed: {sum(users_lines_changed):,}
         Avg. % of contributions (per collab repo): {avg_percent}
-        Weighted avg. % of contributions (per collab repo): {weighted_avg_percent}
         Project page views: {await self.views:,}
         Project page views from date: {await self.views_from_date}
         Project repository collaborators: {await self.collaborators:,}
@@ -409,9 +422,10 @@ class GitHubRepoStats(object):
         contributor_set = set()
         repo_total_changes_arr = []
         author_contribution_percentages = []
-        weighted_author_contribution_percentages = []
         author_total_additions = 0
         author_total_deletions = 0
+
+        repos = []
 
         for repo in await self.repos:
             if repo in self._empty_repos:
@@ -466,20 +480,12 @@ class GitHubRepoStats(object):
                 )
                 repo_total_changes_arr.append(repo_total_changes)
 
-                weighted_author_contribution_percentages.append(
-                    author_contribution_percentages[-1]
-                    * (1 - 1 / num_repo_collabs if num_repo_collabs > 1 else 1)
-                )
+                repos.append(repo)
 
         if sum(author_contribution_percentages) > 0:
             self._avg_percent = f"{(sum(author_contribution_percentages) / len(repo_total_changes_arr) * 100):0.2f}%"
-
-            weighted_avg_percent = sum(weighted_author_contribution_percentages) / len(
-                repo_total_changes_arr
-            )
-            self._weighted_avg_percent = f"{weighted_avg_percent * 100:0.2f}%"
         else:
-            self._weighted_avg_percent = self._avg_percent = "N/A"
+            self._avg_percent = "N/A"
 
         self._contributors = contributor_set
 
@@ -496,17 +502,6 @@ class GitHubRepoStats(object):
         await self.lines_changed
         assert self._avg_percent is not None
         return self._avg_percent
-
-    @property
-    async def weighted_avg_contribution_percent(self) -> str:
-        """
-        :return: str representing the weighted avg percent of user's repo contributions
-        """
-        if self._weighted_avg_percent is not None:
-            return self._weighted_avg_percent
-        await self.lines_changed
-        assert self._weighted_avg_percent is not None
-        return self._weighted_avg_percent
 
     @property
     async def views(self) -> int:

@@ -196,21 +196,21 @@ class GenerateImages:
             "{{ views_from_date }}", f"Repo views (as of {views_from})", output
         )
 
-        pull_requests = f"{await self.__stats.pull_requests:,}"
-        pull_requests = (
-            pull_requests
-            if len(str(pull_requests)) < TXT_SPACER_MAX_LEN
-            else add_unit(pull_requests)
-        )
-        issues = f"{await self.__stats.issues:,}"
-        issues = issues if len(str(issues)) < TXT_SPACER_MAX_LEN else add_unit(issues)
-        pull_requests_and_issues = (
-            pull_requests
-            + " " * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1)
-            + "|   "
-            + issues
-        )
-        output = sub("{{ pull_requests_and_issues }}", pull_requests_and_issues, output)
+        # pull_requests = f"{await self.__stats.pull_requests:,}"
+        # pull_requests = (
+        #     pull_requests
+        #     if len(str(pull_requests)) < TXT_SPACER_MAX_LEN
+        #     else add_unit(pull_requests)
+        # )
+        # issues = f"{await self.__stats.issues:,}"
+        # issues = issues if len(str(issues)) < TXT_SPACER_MAX_LEN else add_unit(issues)
+        # pull_requests_and_issues = (
+        #     pull_requests
+        #     + " " * max(1, TXT_SPACER_MAX_LEN - len(str(pull_requests)) + 1)
+        #     + "|   "
+        #     + issues
+        # )
+        # output = sub("{{ pull_requests_and_issues }}", pull_requests_and_issues, output)
 
         generate_output_folder()
         with open("{}/{}".format(OUTPUT_DIR, OVERVIEW_FILE_NAME), "w") as f:
