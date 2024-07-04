@@ -619,9 +619,11 @@ class GitHubRepoStats(object):
 
                 for pr_data in await self.queries.query_rest(end_point):
                     try:
-                        pull_requests.add(
-                            pr_data["url"]
-                        ) if "url" in pr_data.keys() else None
+                        (
+                            pull_requests.add(pr_data["url"])
+                            if "url" in pr_data.keys()
+                            else None
+                        )
                     except AttributeError:
                         self._is_fetch_rate_limit_exceeded = True
                         break
@@ -653,9 +655,11 @@ class GitHubRepoStats(object):
 
                 for issue_data in await self.queries.query_rest(end_point):
                     try:
-                        issues.add(
-                            issue_data["url"]
-                        ) if "url" in issue_data.keys() else None
+                        (
+                            issues.add(issue_data["url"])
+                            if "url" in issue_data.keys()
+                            else None
+                        )
                     except AttributeError:
                         self._is_fetch_rate_limit_exceeded = True
                         break
