@@ -37,7 +37,7 @@ jobs:
 
     # Use Ruff to lint all files
     - name: Ruff lint
-      run: ruff --output-format=github .
+      run: ruff check --output-format=github .
 
     # Use Black to check format for all files
     - name: Black lint
