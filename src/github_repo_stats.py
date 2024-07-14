@@ -38,7 +38,7 @@ class GitHubRepoStats(object):
         self._languages: Optional[Dict[str, Any]] = None
         self._excluded_languages: Optional[Set[str]] = None
         self._repos: Optional[Set[str]] = None
-        self._owned_repos: Optional[Set[str]] = None
+        # self._owned_repos: Optional[Set[str]] = None
         self._users_lines_changed: Optional[Tuple[int, int]] = None
         self._avg_percent: Optional[str] = None
         self._views: Optional[int] = None
@@ -358,23 +358,23 @@ class GitHubRepoStats(object):
         assert self._repos is not None
         return self._repos
 
-    @property
-    async def owned_repos(self) -> Set[str]:
-        """
-        :return: list of names of repos owned by user
-        """
-        if self._owned_repos is not None:
-            return self._owned_repos
-        await self.get_stats()
-        assert self._repos is not None
-        self._owned_repos = set(
-            [
-                i
-                for i in self._repos
-                if self.environment_vars.username == i.split("/")[0]
-            ]
-        )
-        return self._owned_repos
+    # @property
+    # async def owned_repos(self) -> Set[str]:
+    #     """
+    #     :return: list of names of repos owned by user
+    #     """
+    #     if self._owned_repos is not None:
+    #         return self._owned_repos
+    #     await self.get_stats()
+    #     assert self._repos is not None
+    #     self._owned_repos = set(
+    #         [
+    #             i
+    #             for i in self._repos
+    #             if self.environment_vars.username == i.split("/")[0]
+    #         ]
+    #     )
+    #     return self._owned_repos
 
     @property
     async def total_contributions(self) -> int:
