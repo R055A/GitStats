@@ -174,6 +174,15 @@ Generate daily updated visualizations of user and repository statistics from the
     * `<int>`
   * example:
     * `4`
+* ### Optional Secret *Name*: `ONLY_INCLUDED_COLLAB_REPOS`
+  For **ONLY** including collaborative repositories in the generated average contribution statistics calculations
+    - such as when there are fewer collaborative repositories to include than to exclude
+  
+    **Instructions**:
+    * enter *Value* in the following format (separated by commas):
+      * `[owner/repo],[owner/repo],...,[owner/repo]`
+    * example:
+      * `R055A/UniversityProject-A,R055A/UniversityProject-B`
 * ### Optional Secret *Name*: `EXCLUDED_COLLAB_REPOS`
   For excluding collaborative repositories from being included in the average contribution statistics calculations
     - for example, such as for when 
