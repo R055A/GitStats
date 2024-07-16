@@ -71,6 +71,7 @@ jobs:
         MORE_COLLABS: ${{ secrets.MORE_COLLABS }}
         MORE_REPOS: ${{ secrets.MORE_REPOS }}
         ONLY_INCLUDED: ${{ secrets.ONLY_INCLUDED }}
+        ONLY_INCLUDED_COLLAB_REPOS: ${{ secrets.ONLY_INCLUDED_COLLAB_REPOS }}
         EXCLUDED_COLLAB_REPOS: ${{ secrets.EXCLUDED_COLLAB_REPOS }}
         MORE_COLLAB_REPOS: ${{ secrets.MORE_COLLAB_REPOS }}
 

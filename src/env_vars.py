@@ -32,6 +32,7 @@ class EnvironmentVariables:
         more_collaborators: Optional[str] = getenv("MORE_COLLABS"),
         manually_added_repos: Optional[str] = getenv("MORE_REPOS"),
         only_included_repos: Optional[str] = getenv("ONLY_INCLUDED"),
+        only_included_collab_repos: Optional[str] = getenv("ONLY_INCLUDED_COLLAB_REPOS"),
         exclude_collab_repos: Optional[str] = getenv("EXCLUDED_COLLAB_REPOS"),
         more_collab_repos: Optional[str] = getenv("MORE_COLLAB_REPOS"),
     ):
@@ -139,6 +140,13 @@ class EnvironmentVariables:
         else:
             self.only_included_repos = {
                 x.strip() for x in only_included_repos.split(",")
+            }
+
+        if only_included_collab_repos is None or only_included_collab_repos == "":
+            self.only_included_collab_repos = set()
+        else:
+            self.only_included_collab_repos = {
+                x.strip() for x in only_included_collab_repos.split(",")
             }
 
         if exclude_collab_repos is None:
