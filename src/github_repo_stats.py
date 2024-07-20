@@ -472,11 +472,14 @@ class GitHubRepoStats(object):
                     (author_additions + author_deletions) / repo_total_changes
                 )
                 author_contribution_percentages_weighted.append(
-                    author_contribution_percentages[-1]
-                    / (
-                        1
-                        / len(repo_contributors)
-                        * (2 if len(repo_contributors) > 1 else 1)
+                    min(
+                        1.0,
+                        author_contribution_percentages[-1]
+                        / (
+                            1
+                            / len(repo_contributors)
+                            * (2 if len(repo_contributors) > 1 else 1)
+                        ),
                     )
                 )
                 repo_total_changes_arr.append(repo_total_changes)
