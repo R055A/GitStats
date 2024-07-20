@@ -452,7 +452,11 @@ class GitHubRepoStats(object):
             # calculate average author's contributions to each repository with at least one other collaborator
             if (
                 repo not in self.environment_vars.exclude_collab_repos
-                and (not exclusive_collab_repos or repo in exclusive_collab_repos or repo in slave_status_repos)
+                and (
+                    not exclusive_collab_repos
+                    or repo in exclusive_collab_repos
+                    or repo in slave_status_repos
+                )
                 and (author_additions + author_deletions) > 0
                 and (
                     other_authors_total_changes > 0
@@ -468,8 +472,12 @@ class GitHubRepoStats(object):
                     (author_additions + author_deletions) / repo_total_changes
                 )
                 author_contribution_percentages_weighted.append(
-                    author_contribution_percentages[-1] / (
-                                1 / len(repo_contributors) * (2 if len(repo_contributors) > 1 else 1))
+                    author_contribution_percentages[-1]
+                    / (
+                        1
+                        / len(repo_contributors)
+                        * (2 if len(repo_contributors) > 1 else 1)
+                    )
                 )
                 repo_total_changes_arr.append(repo_total_changes)
 

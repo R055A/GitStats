@@ -171,8 +171,10 @@ class GenerateImages:
         )[1]
         output = sub("{{ lines_changed }}", f"{changed:,}", output)
 
-        avg_contribution_percent = (f"{await self.__stats.avg_contribution_percent} "
-                                    f"[{await self.__stats.avg_contribution_percent_weighted}]")
+        avg_contribution_percent = (
+            f"{await self.__stats.avg_contribution_percent} "
+            f"[{await self.__stats.avg_contribution_percent_weighted}]"
+        )
         output = sub("{{ avg_contribution_percent }}", avg_contribution_percent, output)
 
         num_repos = len(await self.__stats.repos)
