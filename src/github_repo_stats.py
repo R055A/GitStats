@@ -51,6 +51,7 @@ class GitHubRepoStats(object):
         self._issues: Optional[int] = None
         self._empty_repos: Optional[Set[str]] = None
         self._collab_repos: Optional[Set[str]] = None
+        self._contributed_collab_repos: Optional[Set[str]] = None
         self._is_fetch_rate_limit_exceeded: Optional[bool] = False
 
     async def to_str(self) -> str:
@@ -72,6 +73,7 @@ class GitHubRepoStats(object):
         Forks: {await self.forks:,}
         All-time contributions: {await self.total_contributions:,}
         Repositories with contributions: {len(await self.repos):,}
+        Repositories in collaboration with at least one other user: {len(await self.contributed_collab_repos):,}
         Lines of code added: {users_lines_changed[0]:,}
         Lines of code deleted: {users_lines_changed[1]:,}
         Total lines of code changed: {sum(users_lines_changed):,}
@@ -362,6 +364,17 @@ class GitHubRepoStats(object):
         return self._owned_repos
 
     @property
+    async def contributed_collab_repos(self) -> Set[str]:
+        """
+        :return: list of names of repos contributed to user in collaborations with at least one other
+        """
+        if self._contributed_collab_repos is not None:
+            return self._contributed_collab_repos
+        await self.lines_changed
+        assert self._contributed_collab_repos is not None
+        return self._contributed_collab_repos
+
+    @property
     async def total_contributions(self) -> int:
         """
         :return: count of user's total contributions as defined by GitHub
@@ -412,7 +425,9 @@ class GitHubRepoStats(object):
         author_total_additions = 0
         author_total_deletions = 0
 
-        repos = []
+        self._contributed_collab_repos = collab_repos.copy().union(
+            slave_status_repos.copy()
+        )
 
         for repo in await self.repos:
             if repo in self._empty_repos:
@@ -449,6 +464,10 @@ class GitHubRepoStats(object):
             author_total_additions += author_additions
             author_total_deletions += author_deletions
 
+            # add repo if in collaboration with at least one other to list for comparing with total repo count
+            if other_authors_total_changes > 0:
+                self._contributed_collab_repos.add(repo)
+
             # calculate average author's contributions to each repository with at least one other collaborator
             if (
                 repo not in self.environment_vars.exclude_collab_repos
@@ -461,8 +480,9 @@ class GitHubRepoStats(object):
                 and (
                     other_authors_total_changes > 0
                     or repo
-                    in collab_repos
-                    | slave_status_repos  # either collaborators are ghosting or no show in repo
+                    in collab_repos.union(
+                        slave_status_repos
+                    )  # either collaborators are ghosting or no show in repo
                 )
             ):
                 repo_total_changes = (
@@ -483,8 +503,6 @@ class GitHubRepoStats(object):
                     )
                 )
                 repo_total_changes_arr.append(repo_total_changes)
-
-                repos.append(repo)
 
         if sum(author_contribution_percentages) > 0:
             self._avg_percent = f"{(sum(author_contribution_percentages) / len(repo_total_changes_arr) * 100):0.2f}%"

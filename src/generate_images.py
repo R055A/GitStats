@@ -178,13 +178,13 @@ class GenerateImages:
         output = sub("{{ avg_contribution_percent }}", avg_contribution_percent, output)
 
         num_repos = len(await self.__stats.repos)
-        num_owned_repos = len(await self.__stats.owned_repos)
+        num_collab_repos = len(await self.__stats.contributed_collab_repos)
         repos = (
             num_repos
             if len(str(num_repos)) < TXT_SPACER_MAX_LEN
             else add_unit(num_repos)
         )
-        repos = f"{repos:,} [{'%g' % round(num_owned_repos / num_repos * 100, 1)}%]"
+        repos = f"{repos:,} [{'%g' % round(num_collab_repos / num_repos * 100, 1)}%]"
         output = sub("{{ repos }}", repos, output)
 
         collaborators_and_contributors = f"{await self.__stats.collaborators:,}"
