@@ -73,7 +73,7 @@ class GitHubRepoStats(object):
         Forks: {await self.forks:,}
         All-time contributions: {await self.total_contributions:,}
         Repositories with contributions: {len(await self.repos):,}
-        Repositories with contributions in collaboration with at least one other user: {len(await self.contributed_collab_repos):,}
+        Repositories in collaboration with at least one other user: {len(await self.contributed_collab_repos):,}
         Lines of code added: {users_lines_changed[0]:,}
         Lines of code deleted: {users_lines_changed[1]:,}
         Total lines of code changed: {sum(users_lines_changed):,}
@@ -425,7 +425,9 @@ class GitHubRepoStats(object):
         author_total_additions = 0
         author_total_deletions = 0
 
-        self._contributed_collab_repos = collab_repos.copy().union(slave_status_repos.copy())
+        self._contributed_collab_repos = collab_repos.copy().union(
+            slave_status_repos.copy()
+        )
 
         for repo in await self.repos:
             if repo in self._empty_repos:
@@ -478,7 +480,9 @@ class GitHubRepoStats(object):
                 and (
                     other_authors_total_changes > 0
                     or repo
-                    in collab_repos.union(slave_status_repos)  # either collaborators are ghosting or no show in repo
+                    in collab_repos.union(
+                        slave_status_repos
+                    )  # either collaborators are ghosting or no show in repo
                 )
             ):
                 repo_total_changes = (

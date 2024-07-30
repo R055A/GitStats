@@ -10,17 +10,17 @@ Generate daily updated visualizations of user and repository statistics from the
 
 ## Description of Statistical Terminology
 
-| GitHub Statistics Term         | Description                                                                                                                                                                                                                                                                                |
-|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| GitHub Statistics Term         | Description                                                                                                    |
+|--------------------------------|----------------------------------------------------------------------------------------------------------------|
 | All-time GitHub contributions  | Count of all contributions ([as defined by GitHub](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/managing-contribution-settings-on-your-profile/viewing-contributions-on-your-profile)) to any and all repositories any time for a given user |
-| Lines of code changes*         | Sum of all code additions and deletions to all repositories contributed to for a user, measured by lines                                                                                                                                                                                   |
-| Avg contributions [weighted]*  | Average code changes per collaborative repository for a user [weighted relative to contributor count]                                                                                                                                                                                      |
-| Repos contributed [% collab]*    | Count of all repositories contributed to by a user [including percent in collaboration with others]                                                                                                                                                                                        |
-| Repo views (as of YYYY-MM-DD)* | Sum of views to all repositories since created, if owned, or contributed to (from a given date)                                                                                                                                                                                            | 
-| Repo collaborators*            | Sum of collaborator and contributor counts for all repositories contributed to or owned for a user                                                                                                                                                                                         |
-| Repo forks*                    | Sum of all-time fork counts for all repositories contributed to or owned for a user                                                                                                                                                                                                        |
-| Repo stars*                    | Sum of all-time star counts for all repositories contributed to or owned for a user                                                                                                                                                                                                        |
-| # [+#] Implemented Languages*  | Listed [and hidden] percentages of implemented languages relative to sizes of files contributed to                                                                                                                                                                                         |
+| Lines of code changes*         | Sum of all code additions and deletions to all repositories contributed to for a user, measured by lines       |
+| Avg contributions [weighted]*  | Average code changes per collaborative repository for a user [weighted relative to contributor count]          |
+| Repos contributed [% collab]*  | Count of all repositories contributed to by a user [including percent in collaboration with others]            |
+| Repo views (as of YYYY-MM-DD)* | Sum of views to all repositories since created, if owned, or contributed to (from a given date)                | 
+| Repo collaborators*            | Sum of collaborator and contributor counts for all repositories contributed to or owned for a user             |
+| Repo forks*                    | Sum of all-time fork counts for all repositories contributed to or owned for a user                            |
+| Repo stars*                    | Sum of all-time star counts for all repositories contributed to or owned for a user                            |
+| # [+#] Implemented Languages*  | Listed [and hidden] percentages of implemented languages relative to sizes of files contributed to             |
 
 > \* Customisable as instructed in the :closed_lock_with_key: Options section below
 
