@@ -184,7 +184,7 @@ class GenerateImages:
             if len(str(num_repos)) < TXT_SPACER_MAX_LEN
             else add_unit(num_repos)
         )
-        repos = f"{repos:,} [{'%g' % round(num_collab_repos / num_repos * 100, 1)}%]"
+        repos = f"{repos:,} [{'%g' % round(num_collab_repos / num_repos * 100, 2)}%]"
         output = sub("{{ repos }}", repos, output)
 
         collaborators_and_contributors = f"{await self.__stats.collaborators:,}"
