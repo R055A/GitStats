@@ -5,7 +5,7 @@ name: Auto Update Stats Images
 # Controls when the action will run. Triggers the workflow on auto-scheduled push events
 on:
   schedule:
-    - cron: "30 0 * * *"
+    - cron: "30 0 * * 0"
   workflow_dispatch:
   
 permissions:
@@ -25,11 +25,11 @@ jobs:
 
     # Checks-out repository under $GITHUB_WORKSPACE, so the job can access it
     - name: Check out code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # Run using Python 3.12 for consistency and aiohttp
     - name: Set up Python 3.12
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         architecture: 'x64'
