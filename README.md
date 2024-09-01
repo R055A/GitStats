@@ -1,6 +1,6 @@
 # 📈 [GitHub Stats Visualization](https://github.com/R055A/GitStats) 🔭
 
-Generate daily updated visualizations of user and repository statistics from the GitHub [GraphQL](https://docs.github.com/en/graphql) and [REST](https://docs.github.com/en/rest) APIs using GitHub [Actions](https://docs.github.com/en/actions) and [Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). Customizable visualizations support dark and light mode and can adapt to device sizes.
+Generate regularly updated visualizations of user and repository statistics from the GitHub [GraphQL](https://docs.github.com/en/graphql) and [REST](https://docs.github.com/en/rest) APIs using GitHub [Actions](https://docs.github.com/en/actions) and [Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets). Customizable visualizations support dark and light mode and can adapt to device sizes.
 
 > A modification of [`jstrieb/github-stats`](https://github.com/jstrieb/github-stats) visualizations with new and improved statistics and more options!
 
@@ -66,7 +66,7 @@ Generate daily updated visualizations of user and repository statistics from the
       1. For the **first time**, or to **reset stored statistics** (although this is done with every push to the main):
          * Click the link to: [go to the **Generate Git Stats Images** GitHub Actions workflow](../../actions/workflows/non_auto_generate_stat_images.yml)
          > *This is required if the `actions_branch` branch is not created, as it is created when run*
-      2. Otherwise, for **updating** generated statistics visualizations (although this is automatically done daily):
+      2. Otherwise, for **updating** generated statistics visualizations (although this is automatically done ):
          * Click the link to: [go to the **Auto Update Stats Images** GitHub Actions workflow](../../actions/workflows/auto_update_stat_images.yml)
          > *This requires the `actions_branch` branch to first be created with generated statistics visualizations*
    2. With the GitHub Actions page open, click the '***Run workflow***' dropdown menu button
@@ -83,7 +83,7 @@ Generate daily updated visualizations of user and repository statistics from the
 
 ### Display Generated Statistics
 
-6. To display the generated statistics, static URLs can be used for images that are updated daily:
+6. To display the generated statistics, static URLs can be used for images that are updated weekly:
    1. For generated language statistics visualizations (replacing `<username>` with your GitHub username):
    ```md
    ![](https://raw.githubusercontent.com/<username>/GitStats/actions_branch/generated_images/languages.svg)
